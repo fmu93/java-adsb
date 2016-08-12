@@ -7,6 +7,7 @@ import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
 import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
 import org.opensky.libadsb.msgs.BDS2;
+import org.opensky.libadsb.msgs.BDS4;
 import org.opensky.libadsb.msgs.EnhancedSurveillance;
 import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
@@ -107,7 +108,10 @@ public class Decoder {
 		case 20: case 21:
 		     EnhancedSurveillance ehs1090 = new EnhancedSurveillance(modes);
 		     
-		     if (ehs1090.getB1_4() == 2 && ehs1090.getB5_8() == 0) {
+		     if (ehs1090.isB1() && ehs1090.isB14() && ehs1090.isB27() 
+		    		 && ehs1090.getB40_47() == 0 && ehs1090.getB52_53() == 0) {
+		    	 return new BDS4(ehs1090);
+		     } else if (ehs1090.getB1_4() == 2 && ehs1090.getB5_8() == 0) {
 		    	 return new BDS2(ehs1090);
 		     }
 		     return ehs1090;

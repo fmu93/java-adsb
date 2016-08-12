@@ -32,6 +32,7 @@ import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
 import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
 import org.opensky.libadsb.msgs.BDS2;
+import org.opensky.libadsb.msgs.BDS4;
 import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.EnhancedSurveillance;
@@ -261,6 +262,11 @@ public class ExampleDecoder {
 			case BDS2:
 				BDS2 bds2 = (BDS2)msg;
 				System.out.println("["+icao24+"]: Callsign is "+new String(bds2.getIdentity()));
+				break;
+			case BDS4:
+				BDS4 bds4 = (BDS4)msg;
+				System.out.println("["+icao24+"]: SelaltMCP is "+bds4.getSelaltMCP()+" and selaltFMS is "+bds4.getSelaltFMS());
+				System.out.println("          Koll is"+bds4.getKoll());
 				break;
 			case COMM_D_ELM:
 				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;
