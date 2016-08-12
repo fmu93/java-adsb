@@ -31,6 +31,7 @@ import org.opensky.libadsb.msgs.AirbornePositionMsg;
 import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
 import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
+import org.opensky.libadsb.msgs.BDS2;
 import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.EnhancedSurveillance;
@@ -256,6 +257,10 @@ public class ExampleDecoder {
 						ehs1090.isB12()+"(12)"+ehs1090.isB13()+"(13)"+ehs1090.isB14()+"(14)"+
 						ehs1090.isB24()+"(24)"+ehs1090.isB27()+"(27)"+ehs1090.isB35()+"(35)"+
 						ehs1090.isB46()+"(46)"+ehs1090.getB40_47()+"(n3)"+ehs1090.getB52_53()+"(n4)");
+				break;
+			case BDS2:
+				BDS2 bds2 = (BDS2)msg;
+				System.out.println("["+icao24+"]: Callsign is "+new String(bds2.getIdentity()));
 				break;
 			case COMM_D_ELM:
 				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;

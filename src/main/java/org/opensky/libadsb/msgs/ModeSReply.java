@@ -62,7 +62,9 @@ public class ModeSReply implements Serializable {
 		ADSB_TCAS,
 		ADSB_VELOCITY,
 		ADSB_IDENTIFICATION,
-		ADSB_STATUS
+		ADSB_STATUS,
+		// EHS subtypes
+		BDS2
 	}
 	private subtype type;
 
