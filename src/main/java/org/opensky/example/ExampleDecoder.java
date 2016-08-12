@@ -31,10 +31,9 @@ import org.opensky.libadsb.msgs.AirbornePositionMsg;
 import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
 import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
-import org.opensky.libadsb.msgs.CommBAltitudeReply;
-import org.opensky.libadsb.msgs.CommBIdentifyReply;
 import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
+import org.opensky.libadsb.msgs.EnhancedSurveillance;
 import org.opensky.libadsb.msgs.ExtendedSquitter;
 import org.opensky.libadsb.msgs.IdentificationMsg;
 import org.opensky.libadsb.msgs.IdentifyReply;
@@ -250,13 +249,13 @@ public class ExampleDecoder {
 				System.out.println("["+icao24+"]: Military ES of application "+mil.getApplicationCode());
 				System.out.println("          Message is 0x"+tools.toHexString(mil.getMessage()));
 				break;
-			case COMM_B_ALTITUDE_REPLY:
-				CommBAltitudeReply commBaltitude = (CommBAltitudeReply)msg;
-				System.out.println("["+icao24+"]: Long altitude reply: "+commBaltitude.getAltitude()+"m");
-				break;
-			case COMM_B_IDENTIFY_REPLY:
-				CommBIdentifyReply commBidentify = (CommBIdentifyReply)msg;
-				System.out.println("["+icao24+"]: Long identify reply: "+commBidentify.getIdentity());
+			case ENHANCED_SURVEILLANCE:
+				EnhancedSurveillance ehs1090 = (EnhancedSurveillance)msg;
+				System.out.println("["+icao24+"]: Unknown EHS with: "+ehs1090.isB1()+"(1)"+
+						ehs1090.getB1_4()+"(n1)"+ehs1090.getB5_8()+"(n2)"+
+						ehs1090.isB12()+"(12)"+ehs1090.isB13()+"(13)"+ehs1090.isB14()+"(14)"+
+						ehs1090.isB24()+"(24)"+ehs1090.isB27()+"(27)"+ehs1090.isB35()+"(35)"+
+						ehs1090.isB46()+"(46)"+ehs1090.getB40_47()+"(n3)"+ehs1090.getB52_53()+"(n4)");
 				break;
 			case COMM_D_ELM:
 				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;

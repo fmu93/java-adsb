@@ -6,8 +6,7 @@ import org.opensky.libadsb.msgs.AirbornePositionMsg;
 import org.opensky.libadsb.msgs.AirspeedHeadingMsg;
 import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
-import org.opensky.libadsb.msgs.CommBAltitudeReply;
-import org.opensky.libadsb.msgs.CommBIdentifyReply;
+import org.opensky.libadsb.msgs.EnhancedSurveillance;
 import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.ExtendedSquitter;
@@ -104,8 +103,9 @@ public class Decoder {
 
 			return es1090; // unknown extended squitter
 		case 19: return new MilitaryExtendedSquitter(modes);
-		case 20: return new CommBAltitudeReply(modes);
-		case 21: return new CommBIdentifyReply(modes);
+		case 20: case 21:
+		     EnhancedSurveillance ehs1090 = new EnhancedSurveillance(modes);
+		     return ehs1090;
 		default:
 			if (modes.getDownlinkFormat()>=24)
 				return new CommDExtendedLengthMsg(modes);
