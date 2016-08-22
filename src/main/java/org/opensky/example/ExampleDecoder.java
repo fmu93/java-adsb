@@ -33,6 +33,7 @@ import org.opensky.libadsb.msgs.AllCallReply;
 import org.opensky.libadsb.msgs.AltitudeReply;
 import org.opensky.libadsb.msgs.BDS2;
 import org.opensky.libadsb.msgs.BDS4;
+import org.opensky.libadsb.msgs.BDS5;
 import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.EnhancedSurveillance;
@@ -267,6 +268,11 @@ public class ExampleDecoder {
 				BDS4 bds4 = (BDS4)msg;
 				System.out.println("["+icao24+"]: SelaltMCP is "+bds4.getSelaltMCP()+" and selaltFMS is "+bds4.getSelaltFMS());
 				System.out.println("          Koll is"+bds4.getKoll());
+				break;
+			case BDS5:
+				BDS5 bds5 = (BDS5)msg;
+				System.out.println("["+icao24+"]: Bankangle is "+bds5.getBankangle()+" ttrack is "+bds5.getTtrack());
+				System.out.println("          Gs is "+bds5.getGs()+" turnrate is "+bds5.getTurnrate()+" and tas is " + bds5.getTAS());
 				break;
 			case COMM_D_ELM:
 				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;

@@ -65,7 +65,8 @@ public class ModeSReply implements Serializable {
 		ADSB_STATUS,
 		// EHS subtypes
 		BDS2,
-		BDS4
+		BDS4,
+		BDS5
 	}
 	private subtype type;
 
