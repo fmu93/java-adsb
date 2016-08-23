@@ -124,7 +124,7 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	 * @return ground speed in knots
 	 * @throws MissingInformationException
 	 */
-	public double getGs() throws MissingInformationException {
+	public int getGs() throws MissingInformationException {
 		if (!gs_available) {
 			throw new MissingInformationException("No ground speed information available!");
 		}
@@ -154,7 +154,7 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	 * @return true airspeed in knots
 	 * @throws MissingInformationException
 	 */
-	public double getTAS() throws MissingInformationException {
+	public int getTAS() throws MissingInformationException {
 		if (!tas_available) {
 			throw new MissingInformationException("No true airspeed information available!");
 		}
@@ -253,17 +253,17 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	}
 	
 	public String toString() {
-		String ret = super.toString()+"\n" + "BDS4:\n";
+		String ret = super.toString()+"\n" + "BDS5:\n";
 		try { ret += "\tbankangle:\t\t"+getBankangle()+"\n"; }
-		catch (Exception e) { ret += "\tNorth to south velocity:\t\tnot available\n"; }
+		catch (Exception e) { ret += "\tbankangle:\t\tnot available\n"; }
 		try { ret += "\tttrack:\t\t"+getTtrack()+"\n"; }
-		catch (Exception e) { ret += "\tNorth to south velocity:\t\tnot available\n"; }
+		catch (Exception e) { ret += "\tttrack:\t\tnot available\n"; }
 		try { ret += "\tgs:\t\t"+getGs()+"\n"; }
-		catch (Exception e) { ret += "\tNorth to south velocity:\t\tnot available\n"; }
+		catch (Exception e) { ret += "\tgs:\t\tnot available\n"; }
 		try { ret += "\tturnrate:\t\t"+getTurnrate()+"\n"; }
-		catch (Exception e) { ret += "\tNorth to south velocity:\t\tnot available\n"; }
+		catch (Exception e) { ret += "\tturnrate:\t\tnot available\n"; }
 		try { ret += "\ttas:\t\t"+getTAS()+"\n"; }
-		catch (Exception e) { ret += "\tNorth to south velocity:\t\tnot available\n"; }
+		catch (Exception e) { ret += "\ttas:\t\tnot available\n"; }
 		
 		return ret;
 	}

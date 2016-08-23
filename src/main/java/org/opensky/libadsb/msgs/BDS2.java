@@ -28,7 +28,7 @@ import org.opensky.libadsb.exceptions.BadFormatException;
 public class BDS2 extends EnhancedSurveillance implements Serializable {
 	
 	private static final long serialVersionUID = -7397309420290359454L;
-	private byte[] identity;
+	private byte[] callsign;
 	
 	/**
 	 * Maps ADS-B encoded to readable characters
@@ -81,28 +81,28 @@ public class BDS2 extends EnhancedSurveillance implements Serializable {
 		byte[] msg = this.getMessage();
 		
 		// extract identity
-		identity = new byte[8];
+		callsign = new byte[8];
 		int byte_off, bit_off;
 		for (int i=8; i>=1; i--) {
 			// calculate offsets
 			byte_off = (i*6)/8; bit_off = (i*6)%8;
 			
 			// char aligned with byte?
-			if (bit_off == 0) identity[i-1] = (byte) (msg[byte_off]&0x3F);
+			if (bit_off == 0) callsign[i-1] = (byte) (msg[byte_off]&0x3F);
 			else {
 				++byte_off;
-				identity[i-1] = (byte) (msg[byte_off]>>>(8-bit_off)&(0x3F>>>(6-bit_off)));
+				callsign[i-1] = (byte) (msg[byte_off]>>>(8-bit_off)&(0x3F>>>(6-bit_off)));
 				// should we add bits from the next byte?
-				if (bit_off < 6) identity[i-1] |= msg[byte_off-1]<<bit_off&0x3F;
+				if (bit_off < 6) callsign[i-1] |= msg[byte_off-1]<<bit_off&0x3F;
 			}
 		}
 	}
-
+	
 	/**
 	 * @return the call sign as 8 characters array
 	 */
-	public char[] getIdentity() {
-		return mapChar(identity);
+	public char[] getCallsign() {
+		return mapChar(callsign);
 	}
 	
 	public String toString() {

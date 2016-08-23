@@ -34,6 +34,7 @@ import org.opensky.libadsb.msgs.AltitudeReply;
 import org.opensky.libadsb.msgs.BDS2;
 import org.opensky.libadsb.msgs.BDS4;
 import org.opensky.libadsb.msgs.BDS5;
+import org.opensky.libadsb.msgs.BDS6;
 import org.opensky.libadsb.msgs.CommDExtendedLengthMsg;
 import org.opensky.libadsb.msgs.EmergencyOrPriorityStatusMsg;
 import org.opensky.libadsb.msgs.EnhancedSurveillance;
@@ -262,7 +263,7 @@ public class ExampleDecoder {
 				break;
 			case BDS2:
 				BDS2 bds2 = (BDS2)msg;
-				System.out.println("["+icao24+"]: Callsign is "+new String(bds2.getIdentity()));
+				System.out.println("["+icao24+"]: Callsign is "+new String(bds2.getCallsign()));
 				break;
 			case BDS4:
 				BDS4 bds4 = (BDS4)msg;
@@ -273,6 +274,15 @@ public class ExampleDecoder {
 				BDS5 bds5 = (BDS5)msg;
 				System.out.println("["+icao24+"]: Bankangle is "+bds5.getBankangle()+" ttrack is "+bds5.getTtrack());
 				System.out.println("          Gs is "+bds5.getGs()+" turnrate is "+bds5.getTurnrate()+" and tas is " + bds5.getTAS());
+				break;
+			case BDS6:
+				BDS6 bds6 = (BDS6)msg;
+				if (bds6.getDownlinkFormat() == 20) {
+					System.out.println("["+icao24+"]: Altitude is "+bds6.getAltitude()+" mhead is "+bds6.getMag_head()+ " IAS is "+bds6.getIas());
+				} else {
+					System.out.println("["+icao24+"]: mhead is "+bds6.getMag_head()+ " IAS is "+bds6.getIas());
+				}
+				System.out.println("          MACH is "+bds6.getMach()+" baro_vr is "+bds6.getBaro_vr()+" and ins_vr is " + bds6.getIns_vr());
 				break;
 			case COMM_D_ELM:
 				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;
