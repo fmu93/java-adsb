@@ -163,22 +163,22 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 
 	/**
-	 * @return velocity from east to south in m/s
+	 * @return velocity from east to south in knots
 	 * @throws MissingInformationException if no velocity information available
 	 */
-	public double getEastToWestVelocity() throws MissingInformationException {
+	public int getEastToWestVelocity() throws MissingInformationException {
 		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
-		return (direction_west ? east_west_velocity : -east_west_velocity) * 0.514444;
+		return (direction_west ? east_west_velocity : -east_west_velocity);
 	}
 
 
 	/**
-	 * @return velocity from north to south in m/s
+	 * @return velocity from north to south in knots
 	 * @throws MissingInformationException if no velocity information available
 	 */
-	public double getNorthToSouthVelocity() throws MissingInformationException {
+	public int getNorthToSouthVelocity() throws MissingInformationException {
 		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
-		return (direction_south ? north_south_velocity : -north_south_velocity) * 0.514444;
+		return (direction_south ? north_south_velocity : -north_south_velocity);
 	}
 
 
@@ -191,22 +191,22 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 
 
 	/**
-	 * @return vertical rate in m/s (negative value means descending)
+	 * @return vertical rate in ft/min (negative value means descending)
 	 * @throws MissingInformationException if no vertical rate info is available
 	 */
-	public double getVerticalRate() throws MissingInformationException {
+	public int getVerticalRate() throws MissingInformationException {
 		if (!vertical_rate_info_available) throw new MissingInformationException("No vertical rate info available!");
-		return (vertical_rate_down ? -vertical_rate : vertical_rate) * 0.00508;
+		return (vertical_rate_down ? -vertical_rate : vertical_rate);
 	}
 
 
 	/**
-	 * @return difference between barometric and geometric altitude in m
+	 * @return difference between barometric and geometric altitude in ft
 	 * @throws MissingInformationException  if no geo/baro difference info is available
 	 */
-	public double getGeoMinusBaro() throws MissingInformationException {
+	public int getGeoMinusBaro() throws MissingInformationException {
 		if (!geo_minus_baro_available) throw new MissingInformationException("No geo/baro difference info available!");
-		return geo_minus_baro * 0.3048;
+		return geo_minus_baro;
 	}
 	
 	/**
@@ -225,12 +225,12 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 	}
 	
 	/**
-	 * @return speed over ground in m/s
+	 * @return speed over ground in knots
 	 * @throws MissingInformationException if no velocity info is available
 	 */
-	public double getVelocity() throws MissingInformationException {
+	public int getVelocity() throws MissingInformationException {
 		if (!velocity_info_available) throw new MissingInformationException("No velocity info available!");
-		return Math.hypot(north_south_velocity, east_west_velocity) * 0.514444;
+		return (int) Math.round(Math.hypot(north_south_velocity, east_west_velocity));
 	}
 	
 	public String toString() {

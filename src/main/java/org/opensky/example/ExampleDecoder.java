@@ -69,7 +69,6 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 public class ExampleDecoder {
 	// we store the position decoder for each aircraft
 	HashMap<String, PositionDecoder> decs;
-	private PositionDecoder dec;
 	
 	public ExampleDecoder() {
 		decs = new HashMap<String, PositionDecoder>();
@@ -114,7 +113,7 @@ public class ExampleDecoder {
 
 				// decode the position if possible
 				if (decs.containsKey(icao24)) {
-					dec = decs.get(icao24);
+					PositionDecoder dec = decs.get(icao24);
 					airpos.setNICSupplementA(dec.getNICSupplementA());
 					Position current = dec.decodePosition(timestamp, airpos);
 					if (current == null)
@@ -123,7 +122,7 @@ public class ExampleDecoder {
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
 				}
 				else {
-					dec = new PositionDecoder();
+					PositionDecoder dec = new PositionDecoder();
 					dec.decodePosition(timestamp, airpos);
 					decs.put(icao24, dec);
 					System.out.println("First position.");
@@ -138,7 +137,7 @@ public class ExampleDecoder {
 
 				// decode the position if possible
 				if (decs.containsKey(icao24)) {
-					dec = decs.get(icao24);
+					PositionDecoder dec = decs.get(icao24);
 					Position current = dec.decodePosition(timestamp, surfpos);
 					if (current == null)
 						System.out.println("Cannot decode position yet.");
@@ -146,7 +145,7 @@ public class ExampleDecoder {
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
 				}
 				else {
-					dec = new PositionDecoder();
+					PositionDecoder dec = new PositionDecoder();
 					dec.decodePosition(timestamp, surfpos);
 					decs.put(icao24, dec);
 					System.out.println("First position.");

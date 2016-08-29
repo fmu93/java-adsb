@@ -22,8 +22,9 @@ Currently it supports the following ADS-B formats:
 * Surface Position messages (including global and local CPR)
 * Operational status reports (airborne and surface)
 * Aircraft status reports (emergency/priority, TCAS RA)
+* Comm-B registers: BDS2,BDS4,BDS5 and BDS6 messages
 
-The Comm-B registers, Comm-D data link and military ES are not parsed. Comm-B and D will follow soon.
+Comm-D data link and military ES are not parsed. Comm-D will follow soon.
 
 The formats are implemented according to RTCA DO-260B, i.e. ADS-B Version 2. Most message formats of ADS-B Version 1 are upward compatible. Please check the API documentation of the message formats for differences. The ADS-B version of transponders can be obtained in Aircraft Operational Status reports (type code 31; `OperationalStatusMsg.getVersion()`).
 

@@ -23,7 +23,7 @@ public class Position implements Serializable {
 	private static final long serialVersionUID = 1562401753853965728L;
 	private Double longitude;
 	private Double latitude;
-	private Double altitude;
+	private Integer altitude;
 	private boolean reasonable;
 
 	public Position() {
@@ -38,7 +38,7 @@ public class Position implements Serializable {
 	 * @param lat latitude in decimal degrees
 	 * @param alt altitude in meters
 	 */
-	public Position(Double lon, Double lat, Double alt) {
+	public Position(Double lon, Double lat, Integer alt) {
 		longitude = lon;
 		latitude = lat;
 		altitude = alt;
@@ -76,14 +76,14 @@ public class Position implements Serializable {
 	/**
 	 * @return altitude in meters
 	 */
-	public Double getAltitude() {
+	public Integer getAltitude() {
 		return altitude;
 	}
 
 	/**
 	 * @param altitude in meters
 	 */
-	public void setAltitude(Double altitude) {
+	public void setAltitude(Integer altitude) {
 		this.altitude = altitude;
 	}
 

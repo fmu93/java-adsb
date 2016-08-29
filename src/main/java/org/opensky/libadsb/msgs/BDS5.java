@@ -164,15 +164,8 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	/**
 	 * @return the bankangle_available
 	 */
-	public boolean isBankangle_available() {
+	public boolean hasBankangle() {
 		return bankangle_available;
-	}
-
-	/**
-	 * @return the sig_roll
-	 */
-	public boolean isSig_roll() {
-		return sig_roll;
 	}
 
 	/**
@@ -185,15 +178,8 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	/**
 	 * @return the ttrack_available
 	 */
-	public boolean isTtrack_available() {
+	public boolean hasTtrack() {
 		return ttrack_available;
-	}
-
-	/**
-	 * @return the sig_tr
-	 */
-	public boolean isSig_tr() {
-		return sig_tr;
 	}
 
 	/**
@@ -206,7 +192,7 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	/**
 	 * @return the gs_available
 	 */
-	public boolean isGs_available() {
+	public boolean hasGs() {
 		return gs_available;
 	}
 
@@ -220,15 +206,8 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	/**
 	 * @return the turnrate_available
 	 */
-	public boolean isTurnrate_available() {
+	public boolean hasTurnrate() {
 		return turnrate_available;
-	}
-
-	/**
-	 * @return the sig_ang_var
-	 */
-	public boolean isSig_ang_var() {
-		return sig_ang_var;
 	}
 
 	/**
@@ -241,7 +220,7 @@ public class BDS5 extends EnhancedSurveillance implements Serializable {
 	/**
 	 * @return the tas_available
 	 */
-	public boolean isTas_available() {
+	public boolean hasTas() {
 		return tas_available;
 	}
 

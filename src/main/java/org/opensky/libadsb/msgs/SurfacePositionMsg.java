@@ -169,7 +169,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	}
 	
 	/**
-	 * @return speed in m/s
+	 * @return speed in knots
 	 * @throws MissingInformationException if ground speed is not available
 	 */
 	public double getGroundSpeed() throws MissingInformationException {
@@ -194,11 +194,11 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		else
 			throw new MissingInformationException("Ground speed info not available!");
 		
-		return speed*0.514444;
+		return speed;
 	}
 	
 	/**
-	 * @return speed resolution (accuracy) in m/s
+	 * @return speed resolution (accuracy) in knots
 	 * @throws MissingInformationException if ground speed is not available
 	 */
 	public double getGroundSpeedResolution() throws MissingInformationException {
@@ -221,7 +221,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		else
 			throw new MissingInformationException("Ground speed info not available!");
 		
-		return resolution*0.514444;
+		return resolution;
 	}
 	
 	/**
@@ -376,7 +376,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 
 		return new Position(isOddFormat()?Rlon1:Rlon0,
 				            isOddFormat()?Rlat1:Rlat0,
-				            0.0);
+				            0);
 	}
 	
 	/**
@@ -416,7 +416,7 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 //		System.out.println("Loc: EncLon: "+getCPREncodedLongitude()+
 //				" m: "+m+" Dlon: "+Dlon+ " Rlon2: "+Rlon2);
 		
-		return new Position(Rlon, Rlat, 0.0);
+		return new Position(Rlon, Rlat, 0);
 	}
 	
 	public String toString() {

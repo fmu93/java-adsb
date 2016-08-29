@@ -244,7 +244,7 @@ public class EnhancedSurveillance extends ModeSReply implements Serializable {
 	/**
 	 * @return the decoded altitude in meters
 	 */
-	public Double getAltitude() {
+	public Integer getAltitude() {
 		// identity instead of altitude
 		if (getDownlinkFormat() != 20) return null;
 		// altitude unavailable
@@ -255,7 +255,7 @@ public class EnhancedSurveillance extends ModeSReply implements Serializable {
 			boolean Qbit = (code&0x10)!=0;
 			if (Qbit) { // altitude reported in 25ft increments
 				int N = (code&0x0F) | ((code&0x20)>>>1) | ((code&0x1F80)>>>2);
-				return (25*N-1000)*0.3048;
+				return (25*N-1000);
 			}
 			else { // altitude is above 50175ft, so we use 100ft increments
 
@@ -280,7 +280,7 @@ public class EnhancedSurveillance extends ModeSReply implements Serializable {
 				if (N100 == 6) N100=4;
 				if (N500%2 != 0) N100=4-N100; // invert it
 
-				return (-1200+N500*500+N100*100)*0.3048;
+				return (-1200+N500*500+N100*100);
 			}
 		}
 		else return null; // unspecified metric encoding

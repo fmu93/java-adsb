@@ -40,7 +40,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	private boolean airspeed_available;
 	private boolean vertical_source; // 0 = geometric, 1 = barometric
 	private boolean vertical_rate_down; // 0 = up, 1 = down
-	private short vertical_rate; // in ft/s
+	private short vertical_rate; // in ft/min
 	private boolean vertical_rate_info_available;
 	private short geo_minus_baro; // in ft
 	private boolean geo_minus_baro_available;
@@ -169,12 +169,12 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 
 
 	/**
-	 * @return airspeed in m/s
+	 * @return airspeed in knots
 	 * @throws MissingInformationException if no velocity information available
 	 */
-	public double getAirspeed() throws MissingInformationException {
+	public int getAirspeed() throws MissingInformationException {
 		if (!airspeed_available) throw new MissingInformationException("No airspeed info available!");
-		return airspeed * 0.514444;
+		return airspeed;
 	}
 
 
@@ -187,22 +187,22 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 
 
 	/**
-	 * @return vertical rate in m/s (negative value means descending)
+	 * @return vertical rate in ft/min (negative value means descending)
 	 * @throws MissingInformationException if no vertical rate info is available
 	 */
-	public double getVerticalRate() throws MissingInformationException {
+	public int getVerticalRate() throws MissingInformationException {
 		if (!vertical_rate_info_available) throw new MissingInformationException("No vertical rate info available!");
-		return (vertical_rate_down ? -vertical_rate : vertical_rate) * 0.00508;
+		return (vertical_rate_down ? -vertical_rate : vertical_rate);
 	}
 
 
 	/**
-	 * @return difference between barometric and geometric altitude in m
+	 * @return difference between barometric and geometric altitude in ft
 	 * @throws MissingInformationException  if no geo/baro difference info is available
 	 */
-	public double getGeoMinusBaro() throws MissingInformationException {
+	public int getGeoMinusBaro() throws MissingInformationException {
 		if (!geo_minus_baro_available) throw new MissingInformationException("No geo/baro difference info available!");
-		return geo_minus_baro * 0.3048;
+		return geo_minus_baro;
 	}
 	
 	/**
@@ -224,7 +224,7 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	public String toString() {
 		String ret = super.toString()+"\n"+
 				"Airspeed and heading:\n";
-		try { ret += "\tAirspeed:\t"+getAirspeed()+" m/s\n"; }
+		try { ret += "\tAirspeed:\t"+getAirspeed()+" ft/min\n"; }
 		catch (Exception e) { ret += "\tAirspeed:\t\tnot available\n"; }
 		ret += "\tAirspeed Type:\t\t"+(isTrueAirspeed() ? "true" : "indicated")+"\n";
 		try { ret += "\tHeading\t\t\t\t"+getHeading()+"\n"; }

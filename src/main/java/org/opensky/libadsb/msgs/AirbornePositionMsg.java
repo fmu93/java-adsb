@@ -386,7 +386,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	 * @return the decoded altitude in meters
 	 * @throws MissingInformationException if no position available
 	 */
-	public double getAltitude() throws MissingInformationException {
+	public int getAltitude() throws MissingInformationException {
 		if (!altitude_available)
 			throw new MissingInformationException("No altitude information available!");
 
@@ -394,7 +394,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		int N;
 		if (Qbit) { // altitude reported in 25ft increments
 			N = (altitude_encoded&0xF) | ((altitude_encoded&0xFE0)>>>1);
-			return (25*N-1000)*0.3048;
+			return (25*N-1000);
 		}
 		else { // altitude is above 50175ft, so we use 100ft increments
 
@@ -419,7 +419,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 			if (N100 == 6) N100=4;
 			if (N500%2 != 0) N100=4-N100; // invert it
 
-			return (-1200+N500*500+N100*100)*0.3048;
+			return (-1200+N500*500+N100*100);
 		}
 	}
 	

@@ -116,17 +116,17 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	}
 	
 	/**
-	 * @return the maximum airspeed in m/s as specified in ICAO Annex 10V4 3.1.2.8.2.2<br>
-	 * null if unknown<br>Double.MAX_VALUE if unbound
+	 * @return the maximum airspeed in knots as specified in ICAO Annex 10V4 3.1.2.8.2.2<br>
+	 * null if unknown<br>Integer.MAX_VALUE if unbound
 	 */
-	public Double getMaximumAirspeed() {
+	public Integer getMaximumAirspeed() {
 		switch (getReplyInformation()) {
-		case 9: return 140/3.6;
-		case 10: return 280/3.6;
-		case 11: return 560/3.6;
-		case 12: return 1110/3.6;
-		case 13: return 2220/3.6;
-		case 14: return Double.MAX_VALUE;
+		case 9: return 75;
+		case 10: return 150;
+		case 11: return 300;
+		case 12: return 600;
+		case 13: return 1200;
+		case 14: return Integer.MAX_VALUE;
 		default: return null;
 		}
 	}
@@ -152,9 +152,9 @@ public class ShortACAS extends ModeSReply implements Serializable {
 	}
 	
 	/**
-	 * @return the decoded altitude in meters
+	 * @return the decoded altitude in ft
 	 */
-	public Double getAltitude() {
+	public Integer getAltitude() {
 		// altitude unavailable
 		if (altitude_code == 0) return null;
 		
@@ -163,7 +163,7 @@ public class ShortACAS extends ModeSReply implements Serializable {
 			boolean Qbit = (altitude_code&0x10)!=0;
 			if (Qbit) { // altitude reported in 25ft increments
 				int N = (altitude_code&0x0F) | ((altitude_code&0x20)>>>1) | ((altitude_code&0x1F80)>>>2);
-				return (25*N-1000)*0.3048;
+				return (25*N-1000);
 			}
 			else { // altitude is above 50175ft, so we use 100ft increments
 				
@@ -188,7 +188,7 @@ public class ShortACAS extends ModeSReply implements Serializable {
 				if (N100 == 6) N100=4;
 				if (N500%2 != 0) N100=4-N100; // invert it
 
-				return (-1200+N500*500+N100*100)*0.3048;
+				return (-1200+N500*500+N100*100);
 			}
 		}
 		else return null; // unspecified metric encoding
