@@ -71,13 +71,11 @@ import javafx.stage.Stage;
  * 
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
-public class ExampleDecoder extends Application{
+public class ExampleDecoder{
 	// we store the position decoder for each aircraft
 	HashMap<String, PositionDecoder> decs;
 	private PositionDecoder dec;
-	public static File inputHexx;
-	private Stage primaryStage;	
-	private static Controller controller;
+	
 	
 	public ExampleDecoder() {
 		decs = new HashMap<String, PositionDecoder>();
@@ -283,39 +281,20 @@ public class ExampleDecoder extends Application{
 		}
 	}
 	
-	@Override
-	public void start(Stage primaryStage) throws IOException{
-		this.primaryStage = primaryStage;
-		mainWindow();
-	}
-	
-	public void mainWindow() throws IOException{
-		try{
-			Parent root = FXMLLoader.load(getClass().getResource("GUI.fxml"));
-			Scene scene = new Scene(root, 500, 200);
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("GUI.fxml"));
-			controller = loader.getController();
-			primaryStage.setScene(scene);
-			primaryStage.show();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-
-	public static void run(String[] args) throws Exception{
+	public static void runDecoder(String[] args) throws Exception{
 		String icao = null;
-		System.out.println(inputHexx.getAbsolutePath().toString());
+		System.out.println(Core.inputHexx.getAbsolutePath().toString());
 		if (args.length > 0) {
 			icao = args[0];
 			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
 		}
 		// progress bar
 		int currentLine = 0;
-		int totalLines = tools.countLines(inputHexx);
+		int totalLines = tools.countLines(Core.inputHexx);
 		double progress = 0.0001;
 
 		// iterate over STDIN
-		Scanner sc = new Scanner(inputHexx , "UTF-8");
+		Scanner sc = new Scanner(Core.inputHexx , "UTF-8");
 		ExampleDecoder dec = new ExampleDecoder();
 		while(sc.hasNext()) {
 			currentLine++;
@@ -323,14 +302,10 @@ public class ExampleDecoder extends Application{
 			double timeStamp = Double.parseDouble(values[0]);
 			dec.decodeMsg(timeStamp, values[1], icao);
 			
-			progress = currentLine/totalLines;
-			controller.updatepb(progress);
+			progress = currentLine/(totalLines + 0.0);
+			Core.guiApp.controller.updatepb(progress);
 		}
 		sc.close();
 	}
 
-	public static void main(String[] args){
-		launch(args);
-		
-	}
 }

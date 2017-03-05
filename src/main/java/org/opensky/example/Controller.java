@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.stage.FileChooser;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 
@@ -20,6 +21,7 @@ public class Controller {
     @FXML    private Button btDecode;
     @FXML    private TextField txtICAO;
     @FXML 	 private ProgressBar pb;
+    @FXML	private Label lblProgress;
     
     @FXML    void runDecode(ActionEvent event) {
     	try {
@@ -29,7 +31,7 @@ public class Controller {
     			args = (String[]) Arrays.asList(txtICAO.getText()).toArray();
     		}
 
-    		ExampleDecoder.run(args);
+    		ExampleDecoder.runDecoder(args);
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
@@ -43,7 +45,7 @@ public class Controller {
 
     		if (selectedFile != null){
     			btSelHexx.setText(selectedFile.getName());
-    			ExampleDecoder.inputHexx = selectedFile;
+    			Core.inputHexx = selectedFile;
     		}else{
     			System.out.println("not valid file!");
     		}
@@ -53,13 +55,11 @@ public class Controller {
     }
 
     public void updatepb(double progress){
-    	try{
     		pb.setProgress(progress);
-    	}catch(Exception e){
-    		e.printStackTrace();
-    		pb.setProgress(0.5);
-    	}
+    		lblProgress.setText(String.format("%.0f", progress*100) + "%");
+    		
     }
+    
 
 
 
