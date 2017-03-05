@@ -16,6 +16,8 @@ package org.opensky.example;
  *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +49,12 @@ import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 /**
  * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
  * comma-separated timestamp and message. Example input:
@@ -63,10 +71,13 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
  * 
  * @author Matthias Schäfer (schaefer@opensky-network.org)
  */
-public class ExampleDecoder {
+public class ExampleDecoder extends Application{
 	// we store the position decoder for each aircraft
 	HashMap<String, PositionDecoder> decs;
 	private PositionDecoder dec;
+	public static File inputHexx;
+	private Stage primaryStage;	
+	private static Controller controller;
 	
 	public ExampleDecoder() {
 		decs = new HashMap<String, PositionDecoder>();
@@ -272,20 +283,54 @@ public class ExampleDecoder {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	@Override
+	public void start(Stage primaryStage) throws IOException{
+		this.primaryStage = primaryStage;
+		mainWindow();
+	}
+	
+	public void mainWindow() throws IOException{
+		try{
+			Parent root = FXMLLoader.load(getClass().getResource("GUI.fxml"));
+			Scene scene = new Scene(root, 500, 200);
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("GUI.fxml"));
+			controller = loader.getController();
+			primaryStage.setScene(scene);
+			primaryStage.show();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	public static void run(String[] args) throws Exception{
 		String icao = null;
+		System.out.println(inputHexx.getAbsolutePath().toString());
 		if (args.length > 0) {
 			icao = args[0];
 			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
 		}
-		
+		// progress bar
+		int currentLine = 0;
+		int totalLines = tools.countLines(inputHexx);
+		double progress = 0.0001;
+
 		// iterate over STDIN
-		Scanner sc = new Scanner(System.in, "UTF-8");
+		Scanner sc = new Scanner(inputHexx , "UTF-8");
 		ExampleDecoder dec = new ExampleDecoder();
 		while(sc.hasNext()) {
-		  String[] values = sc.nextLine().split(",");
-		  dec.decodeMsg(Double.parseDouble(values[0]), values[1], icao);
+			currentLine++;
+			String[] values = sc.nextLine().split(" ");
+			double timeStamp = Double.parseDouble(values[0]);
+			dec.decodeMsg(timeStamp, values[1], icao);
+			
+			progress = currentLine/totalLines;
+			controller.updatepb(progress);
 		}
 		sc.close();
+	}
+
+	public static void main(String[] args){
+		launch(args);
+		
 	}
 }
