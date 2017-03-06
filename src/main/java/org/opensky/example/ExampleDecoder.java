@@ -16,8 +16,6 @@ package org.opensky.example;
  *  along with org.opensky.libadsb.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,12 +46,6 @@ import org.opensky.libadsb.msgs.ShortACAS;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
-
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 
 /**
  * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
@@ -303,7 +295,7 @@ public class ExampleDecoder{
 			dec.decodeMsg(timeStamp, values[1], icao);
 			
 			progress = currentLine/(totalLines + 0.0);
-			Core.guiApp.controller.updatepb(progress);
+			GUIApplication.controller.updatepb(progress);
 		}
 		sc.close();
 	}

@@ -20,7 +20,7 @@ public class Controller {
     @FXML    private Button btSelHexx;
     @FXML    private Button btDecode;
     @FXML    private TextField txtICAO;
-    @FXML 	 private ProgressBar pb;
+    @FXML 	 public ProgressBar pb;
     @FXML	private Label lblProgress;
     
     @FXML    void runDecode(ActionEvent event) {
