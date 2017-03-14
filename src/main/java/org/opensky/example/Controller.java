@@ -2,7 +2,9 @@ package org.opensky.example;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.stage.FileChooser;
@@ -10,7 +12,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
-
 
 
 public class Controller {
@@ -23,6 +24,7 @@ public class Controller {
     @FXML 	 public ProgressBar pb;
     @FXML	private Label lblProgress;
     
+ 
     @FXML    void runDecode(ActionEvent event) {
     	try {
     		if (txtICAO.getText().isEmpty()){
@@ -30,8 +32,15 @@ public class Controller {
     		}else{
     			args = (String[]) Arrays.asList(txtICAO.getText()).toArray();
     		}
+    		
 
-    		ExampleDecoder.runDecoder(args);
+    		String outFix = "digest_";
+    		String outFileName = outFix + selectedFile.getName();
+    		Core.saver.setOutPath(selectedFile.toPath().getParent(), outFileName);
+    		Core.saver.setWriter();
+    		
+    		Core.decoder.runDecoder(args);
+    		
     	} catch (Exception e) {
     		e.printStackTrace();
     	}

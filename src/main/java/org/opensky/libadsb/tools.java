@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -131,6 +134,12 @@ public class tools {
 		return x == 0;
 	}
 	
+	/**
+	 * Counts all lines in a file
+	 * @param inputHexx
+	 * @return
+	 * @throws IOException
+	 */
 	public static int countLines(File inputHexx) throws IOException {
 	    InputStream is = new BufferedInputStream(new FileInputStream(inputHexx));
 	    try {
@@ -151,4 +160,44 @@ public class tools {
 	        is.close();
 	    }
 	}
+	
+	/**
+	 * Rounds a double to any decimals
+	 * @param toRound
+	 * @param decimals
+	 * @return
+	 */
+	public static double round(Double toRound, int decimals){
+		double rounded = (double) Math.round(toRound * Math.pow(10, decimals)) / Math.pow(10, decimals);
+		return rounded;
+	}
+	
+	
+	/**
+	 * @param epoch
+	 * @return String for the time format HH:MM:SS
+	 */
+	public static String epoch2time(Long epoch){
+			LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochSecond(epoch), ZoneId.of("Z"));
+			return String.format("%02d", date.getHour()) + ":" + String.format("%02d", date.getMinute()) + ":" + String.format("%02d", date.getSecond());
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
