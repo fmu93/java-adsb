@@ -182,7 +182,14 @@ public class tools {
 			return String.format("%02d", date.getHour()) + ":" + String.format("%02d", date.getMinute()) + ":" + String.format("%02d", date.getSecond());
 	}
 	
-	
+	/**
+	 * @param epoch
+	 * @return String for the date format DD/MM/YYYY
+	 */
+	public static String epoch2date(Long epoch){
+			LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochSecond(epoch), ZoneId.of("Z"));
+			return String.format("%02d", date.getDayOfMonth())  + "/" + String.format("%02d", date.getMonthValue()) + "/" + String.format("%04d", date.getYear()) ;
+	}
 	
 	
 	

@@ -19,4 +19,12 @@ public class Core{
 		decoder = new ExampleDecoder();
 		GUIApplication.main(null);
 	}
+	
+	public static void runDecoder(String icaoFilter) throws Exception{
+		
+		String outFix = "digest_";
+		String outFileName = outFix + inputHexx.getName();
+		Core.saver.setOutPath(inputHexx.toPath().getParent(), outFileName);
+		Core.decoder.runDecoder(icaoFilter);
+	}
 }

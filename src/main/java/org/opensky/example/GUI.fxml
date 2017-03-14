@@ -2,20 +2,24 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="186.0" prefWidth="524.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <AnchorPane prefHeight="198.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btSelHexx" layoutX="225.0" layoutY="42.0" mnemonicParsing="false" onAction="#selHexx" text="Select hexx" AnchorPane.topAnchor="42.0" />
-            <Button fx:id="btDecode" layoutX="234.0" layoutY="81.0" mnemonicParsing="false" onAction="#runDecode" text="Decode" AnchorPane.topAnchor="81.0" />
-            <TextField fx:id="txtICAO" layoutX="334.0" layoutY="81.0" promptText="filter for ICAO" AnchorPane.leftAnchor="334.0" AnchorPane.topAnchor="81.0" />
-            <ProgressBar fx:id="pb" layoutX="45.0" layoutY="132.0" prefHeight="18.0" prefWidth="436.0" progress="0.0" />
-            <Label fx:id="lblProgress" layoutX="45.0" layoutY="106.0" text="progress" />
+            <Button fx:id="btSelHexx" layoutX="40.0" layoutY="32.0" maxWidth="300.0" mnemonicParsing="false" onAction="#selHexx" prefHeight="25.0" prefWidth="200.0" text="Select hexx" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="32.0" />
+            <Button fx:id="btDecode" layoutX="226.0" layoutY="141.0" mnemonicParsing="false" onAction="#runDecode" text="Decode" AnchorPane.bottomAnchor="14.0">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font></Button>
+            <TextField fx:id="txtICAO" layoutX="340.0" layoutY="32.0" promptText="filter for ICAO" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="32.0" />
+            <TextField fx:id="txtPrecis" layoutX="203.0" layoutY="68.0" onAction="#setPrecis" prefHeight="25.0" prefWidth="37.0" promptText="0" AnchorPane.leftAnchor="203.0" AnchorPane.topAnchor="68.0" />
+            <Label layoutX="40.0" layoutY="72.0" text="Timestamp decimal precision:" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="72.0" />
+            <Label layoutX="316.0" layoutY="148.0" text="(digest will be in input folder)" AnchorPane.bottomAnchor="21.0" AnchorPane.rightAnchor="52.0" />
          </children>
       </AnchorPane>
    </center>

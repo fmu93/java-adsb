@@ -313,23 +313,29 @@ public class ExampleDecoder{
 		}
 	}
 	
-	public void runDecoder(String[] args) throws Exception{
+	public void runDecoder(String icaoFilter) throws Exception{
 		String icao = null;
 		System.out.println(Core.inputHexx.getAbsolutePath().toString());
-		if (args.length > 0) {
-			icao = args[0];
+		if (icaoFilter.length() > 0) {
+			icao = icaoFilter;
 			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
 		}
 		// progress bar
 		totalLines = tools.countLines(Core.inputHexx);
+		boolean firstEpoch = true;
 
 		// iterate over STDIN
 		Scanner sc = new Scanner(Core.inputHexx , "UTF-8");
 		ExampleDecoder dec = new ExampleDecoder();
 		while(sc.hasNext()) {
+			
 			currentLine++;
 			String[] values = sc.nextLine().split("  *");
 			double timeStamp = Double.parseDouble(values[0]);
+			if (firstEpoch){
+				Core.saver.setWriter(timeStamp);
+				firstEpoch = false;
+			}
 			dec.decodeMsg(timeStamp, values[1], icao);
 
 		}

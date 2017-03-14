@@ -37,6 +37,14 @@ public class SaveToDatabase {
 		"TURN");
 	private int linesToFlush = 1000;
 	private int epochPrecision = 0;
+	public int getEpochPrecision() {
+		return epochPrecision;
+	}
+
+	public void setEpochPrecision(int epochPrecision) {
+		this.epochPrecision = epochPrecision;
+	}
+
 	private PrintWriter writer;
 
 	
@@ -98,7 +106,7 @@ public class SaveToDatabase {
 		
 	}
 	
-	public void setWriter(){
+	public void setWriter(double firstEpoch){
 		try {
 			writer = new PrintWriter(outFile, "UTF-8");
 		} catch (FileNotFoundException e) {
@@ -110,7 +118,7 @@ public class SaveToDatabase {
 		}
 		String header = new String();
 		
-		header = "timestamp\ttime\ticao";
+		header = "timestamp\t" + tools.epoch2date((long) firstEpoch) + "\ticao";
 		for (String dataType : dataTypes){
 			header += "\t" + dataType;
 		}
