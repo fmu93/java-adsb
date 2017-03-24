@@ -368,11 +368,12 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 		double Rlon0 = Dlon0 * (mod(m,Math.max(1.0, NL(Rlat0))) + even.getCPREncodedLongitude()/((double)(1<<17)));
 		double Rlon1 = Dlon1 * (mod(m,Math.max(1.0, NL(Rlat1)-1)) + odd.getCPREncodedLongitude()/((double)(1<<17)));
 
-		// correct longitude
+		// correct longitude TODO
 		if (Rlon0 < -180 && Rlon0 > -360) Rlon0 += 360;
 		if (Rlon1 < -180 && Rlon1 > -360) Rlon1 += 360;
 		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
 		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
+	
 
 		return new Position(isOddFormat()?Rlon1:Rlon0,
 				            isOddFormat()?Rlat1:Rlat0,

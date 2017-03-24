@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 /**
  *  This file is part of org.opensky.libadsb.
@@ -191,9 +192,53 @@ public class tools {
 			return String.format("%02d", date.getDayOfMonth())  + "/" + String.format("%02d", date.getMonthValue()) + "/" + String.format("%04d", date.getYear()) ;
 	}
 	
+	/**
+	 * @param centreLatLonRange. List with Lat, Lon, Range (radius)
+	 * @param pointLatLon. List with Lat, Lon of point to test
+	 * @return if point is contained within a range radius on earth's surface
+	 */
+	public static boolean isContainedInRange(List<Double> centreLatLonRange, List<Double> pointLatLon){
+		boolean isContained = false;
+			if (distance(centreLatLonRange.get(0), centreLatLonRange.get(1), pointLatLon.get(0), pointLatLon.get(1)) < centreLatLonRange.get(2)){
+				isContained = true;
+			}
+		return isContained;
+	}
 	
+	public static double distance(double lat1, double lon1, double lat2, double lon2){
+		return distance(lat1, lon1, lat2, lon2, "K");
+	}
 	
+	/**
+	 * @param lat1
+	 * @param lon1
+	 * @param lat2
+	 * @param lon2
+	 * @param unit
+	 * @return distance between two geographical locations, in the given units. No units defaults to KM.
+	 */
+	public static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
+		double theta = lon1 - lon2;
+		double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+		dist = Math.acos(dist);
+		dist = rad2deg(dist);
+		dist = dist * 60 * 1.1515;
+		if (unit == "K") {
+			dist = dist * 1.609344;
+		} else if (unit == "N") {
+			dist = dist * 0.8684;
+		}
+
+		return (dist);
+	}
 	
+	public static double deg2rad(double deg) {
+		return (deg * Math.PI / 180.0);
+	}
+	
+	public static double rad2deg(double rad) {
+		return (rad * 180 / Math.PI);
+	}
 	
 	
 	

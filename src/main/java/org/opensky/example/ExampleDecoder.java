@@ -66,10 +66,8 @@ import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 public class ExampleDecoder{
 	// we store the position decoder for each aircraft
 	HashMap<String, PositionDecoder> decs;
-	private PositionDecoder dec;
-
-	public int currentLine = 0;
-	public int totalLines = 1;
+	private PositionDecoder dec = new PositionDecoder();
+	public static Position receiverPos;
 	
 	
 	public ExampleDecoder() {
@@ -117,27 +115,29 @@ public class ExampleDecoder{
 				if (decs.containsKey(icao24)) {
 					dec = decs.get(icao24);
 					airpos.setNICSupplementA(dec.getNICSupplementA());
-					Position current = dec.decodePosition(timestamp, airpos);
-					if (current == null){
+					Position current = dec.decodePosition(timestamp, receiverPos, airpos);
+					if (current == null  || !current.isReasonable()){
 						System.out.println("Cannot decode position yet.");
 					}else{
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
 
-						Core.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
-						Core.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
+						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
+						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
 
 					}
 				}
 				else {
 					dec = new PositionDecoder();
-					dec.decodePosition(timestamp, airpos);
+					dec.decodePosition(timestamp, receiverPos, airpos);
 					decs.put(icao24, dec);
 					System.out.println("First position.");
 				}
 				System.out.println("          Horizontal containment radius is "+airpos.getHorizontalContainmentRadiusLimit()+" m");
 				System.out.println("          Altitude is "+ (airpos.hasAltitude() ? airpos.getAltitude() : "unknown") +" m");
 				
-				Core.saver.newDataEntry(timestamp, icao24, String.format("%.2f", airpos.getAltitude()/100), "FL");
+				if (airpos.hasAltitude()){
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", airpos.getAltitude()), "ALT");
+				}
 				
 				
 				break;
@@ -149,26 +149,26 @@ public class ExampleDecoder{
 				// decode the position if possible
 				if (decs.containsKey(icao24)) {
 					dec = decs.get(icao24);
-					Position current = dec.decodePosition(timestamp, surfpos);
-					if (current == null)
+					Position current = dec.decodePosition(timestamp, receiverPos, surfpos); 
+					if (current == null || !current.isReasonable()) 
 						System.out.println("Cannot decode position yet.");
 					else{
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
-						Core.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
-						Core.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
-						Core.saver.newDataEntry(timestamp, icao24, "gr", "FL");
+						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
+						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
+						DecThread.saver.newDataEntry(timestamp, icao24, "gr", "ALT");
 					}
 				}
 				else {
 					dec = new PositionDecoder();
-					dec.decodePosition(timestamp, surfpos);
+					dec.decodePosition(timestamp, receiverPos, surfpos);
 					decs.put(icao24, dec);
 					System.out.println("First position.");
 				}
 				System.out.println("          Horizontal containment radius is "+surfpos.getHorizontalContainmentRadiusLimit()+" m");
 				if (surfpos.hasValidHeading()){
 					System.out.println("          Heading is "+surfpos.getHeading()+" m");
-					Core.saver.newDataEntry(timestamp, icao24, String.format("%.1f", surfpos.getHeading()), "MHEAD");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", surfpos.getHeading()), "MHEAD");
 				}
 				System.out.println("          Airplane is on the ground.");
 				break;
@@ -183,25 +183,25 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: Airspeed is "+
 						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" m/s" : "unkown"));
 				if (airspeed.hasAirspeedInfo()){
-					Core.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getAirspeed()), "TAS");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getAirspeed()), "TAS");
 				}
 				if (airspeed.hasHeadingInfo()){
 					System.out.println("          Heading is "+
 							(airspeed.hasHeadingInfo() ? airspeed.getHeading()+"°" : "unkown"));
-					Core.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getHeading()), "MHEAD");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getHeading()), "MHEAD");
 				}
 				
 				if (airspeed.hasVerticalRateInfo()){
 					System.out.println("          Vertical rate is "+
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
-					Core.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getVerticalRate()), "VRATE");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getVerticalRate()), "VRATE");
 				}
 				break;
 			case ADSB_IDENTIFICATION:
 				IdentificationMsg ident = (IdentificationMsg) msg;
 				System.out.println("["+icao24+"]: Callsign is "+new String(ident.getIdentity()));
 				System.out.println("          Category: "+ident.getCategoryDescription());
-				Core.saver.newDataEntry(timestamp, icao24, new String(ident.getIdentity()), "CALL");
+				DecThread.saver.newDataEntry(timestamp, icao24, new String(ident.getIdentity()), "CALL");
 				break;
 			case ADSB_STATUS:
 				OperationalStatusMsg opstat = (OperationalStatusMsg) msg;
@@ -232,11 +232,11 @@ public class ExampleDecoder{
 				System.out.println("          Vertical rate is "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" m/s");
 				
 				if (veloc.hasVelocityInfo()){
-					Core.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVelocity()), "GS");
-					Core.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getHeading()), "MHEAD");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVelocity()), "GS");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getHeading()), "MHEAD");
 				}
 				if (veloc.hasVerticalRateInfo()){
-					Core.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVerticalRate()), "VRATE");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVerticalRate()), "VRATE");
 				}
 				
 				break;
@@ -314,14 +314,16 @@ public class ExampleDecoder{
 	}
 	
 	public void runDecoder(String icaoFilter) throws Exception{
-		String icao = null;
+		String icao = null; // 44a826
 		System.out.println(Core.inputHexx.getAbsolutePath().toString());
 		if (icaoFilter.length() > 0) {
 			icao = icaoFilter;
 			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
 		}
-		// progress bar
-		totalLines = tools.countLines(Core.inputHexx);
+		if (Core.receiverReason != null){
+			receiverPos = new Position(Core.receiverReason.get(1), Core.receiverReason.get(0), 0.0);
+			dec.setMaxRange((int) Math.abs(Core.receiverReason.get(2)*1000));
+		}
 		boolean firstEpoch = true;
 
 		// iterate over STDIN
@@ -329,17 +331,17 @@ public class ExampleDecoder{
 		ExampleDecoder dec = new ExampleDecoder();
 		while(sc.hasNext()) {
 			
-			currentLine++;
 			String[] values = sc.nextLine().split("  *");
 			double timeStamp = Double.parseDouble(values[0]);
 			if (firstEpoch){
-				Core.saver.setWriter(timeStamp);
+				DecThread.saver.setWriter(timeStamp);
 				firstEpoch = false;
 			}
 			dec.decodeMsg(timeStamp, values[1], icao);
 
 		}
 		sc.close();
+		Core.endDecoder(false);
 	}
 
 }

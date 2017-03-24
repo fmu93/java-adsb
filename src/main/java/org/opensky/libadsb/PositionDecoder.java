@@ -40,7 +40,7 @@ public class PositionDecoder {
 	private Logger logger;
 	
 	// distance to receiver threshold
-	private static final int MAX_DIST_TO_SENDER = 700000; // 700km
+	private static int MAX_DIST_TO_SENDER = 700000; // 700km
 	
 	public PositionDecoder() {
 		last_even_airborne = null;
@@ -66,12 +66,16 @@ public class PositionDecoder {
 	public static boolean withinThreshold (double timeDifference, double distance, boolean surface) {
 		double x = abs(timeDifference);
 		double d = abs(distance);
+		double speed = d/x;
+		if (d>2000){
+			System.out.println(speed);
+		}
 		
 //		if (d/x >= (surface?51.44:514.4)*2.5)
 //			System.err.format("%.2f/%.2f=%.2f\n", d, x, d/x);
 		
-		// may be due to Internet jitter; distance is realistic
-		if (x < 0.7 && d < 2000) return true;
+		// may be due to Internet jitter; distance is realistic TODO
+		if (x < 0.7 && d < 2000) return true; 
 		else return d/x < (surface?51.44:514.4)*2.5; // 1000 knots for airborne, 100 for surface
 	}
 
@@ -155,7 +159,7 @@ public class PositionDecoder {
 		
 		boolean reasonable = true; // be positive :-)
 		double distance_threshold = 10.0; // 10 is a random small distance
-		
+				
 		// check distance between global and local position if possible
 		if (local && global && global_pos.distanceTo(local_pos) > distance_threshold) {  // should be almost equal
 			logger.debug("Local and global differ by %.2f (icao24: %s)\n",
@@ -236,14 +240,16 @@ public class PositionDecoder {
 			}
 			ret.setReasonable(reasonable);
 		}
-		last_pos = ret;
-		last_time = time;
-		
-		if (!reasonable)
-			num_reasonable = 0;
-		else if (reasonable && num_reasonable++<2) // at least n good msgs before
-			ret = null;
 
+
+		if (!reasonable){
+			num_reasonable = 0;
+		}else if (reasonable){ // at least n good msgs before
+			last_pos = ret;
+			last_time = time;
+			if (num_reasonable++<2)
+				ret = null;
+		}
 		return ret;
 	}
 	
@@ -437,10 +443,14 @@ public class PositionDecoder {
 		last_pos = ret;
 		last_time = time;
 		
-		if (!reasonable)
+		if (!reasonable){
 			num_reasonable = 0;
-		else if (reasonable && num_reasonable++<2) // at least n good msgs before
-			ret = null;
+		}else if (reasonable){ // at least n good msgs before
+			last_pos = ret;
+			last_time = time;
+			if (num_reasonable++<2)
+				ret = null;
+		}
 
 		return ret;
 	}
@@ -523,6 +533,13 @@ public class PositionDecoder {
 	 */
 	public double getLastUsedTime() {
 		return last_time;
+	}
+	
+	/**
+	 * @param maxRange in m
+	 */
+	public void setMaxRange(int maxRange){
+		MAX_DIST_TO_SENDER = maxRange;
 	}
 
 }

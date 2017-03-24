@@ -22,7 +22,7 @@ public class SaveToDatabase {
 		"CALL", 
 		"LAT",
 		"LON",
-		"FL",
+		"ALT",
 		"VRATE",
 		"MHEAD",
 		"TTRACK",
@@ -35,14 +35,14 @@ public class SaveToDatabase {
 		"SQUAWK",
 		"BANK",
 		"TURN");
-	private int linesToFlush = 1000;
-	private int epochPrecision = 0;
+	private int linesToFlush = 10000;
+	private static int epochPrecision = 0;
 	public int getEpochPrecision() {
 		return epochPrecision;
 	}
 
-	public void setEpochPrecision(int epochPrecision) {
-		this.epochPrecision = epochPrecision;
+	public static void setEpochPrecision(int epochPrecision1) {
+		epochPrecision = epochPrecision1;
 	}
 
 	private PrintWriter writer;
@@ -102,10 +102,7 @@ public class SaveToDatabase {
 		epochMap.clear();
 	}
 	
-	public void writeHeader(){
-		
-	}
-	
+
 	public void setWriter(double firstEpoch){
 		try {
 			writer = new PrintWriter(outFile, "UTF-8");
@@ -124,7 +121,6 @@ public class SaveToDatabase {
 		}
 		writer.println(header);
 		writer.flush();
-		System.out.println("Header printed to " + outFile.getName());
 	}
 	
 	public void closeWriter(){

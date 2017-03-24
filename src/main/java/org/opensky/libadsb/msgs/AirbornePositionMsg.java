@@ -326,6 +326,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		if (Rlon0 > 180 && Rlon0 < 360) Rlon0 -= 360;
 		if (Rlon1 > 180 && Rlon1 < 360) Rlon1 -= 360;
 		
+				
 		return new Position(isOddFormat()?Rlon1:Rlon0,
 				            isOddFormat()?Rlat1:Rlat0,
 				            this.hasAltitude() ? this.getAltitude() : null);
