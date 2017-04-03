@@ -6,6 +6,7 @@ import java.util.Arrays;
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
 
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -141,7 +142,6 @@ public class ModeSReply implements Serializable {
 		downlink_format = (byte) (Short.parseShort(raw_message.substring(0, 2), 16));
 		first_field = (byte) (downlink_format & 0x7);
 		downlink_format = (byte) (downlink_format>>>3 & 0x1F);
-
 		
 		// extract payload
 		payload = new byte[(length-8)/2];

@@ -47,6 +47,8 @@ import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
+import output.Analytics;
+
 /**
  * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
  * comma-separated timestamp and message. Example input:
@@ -68,8 +70,9 @@ public class ExampleDecoder{
 	HashMap<String, PositionDecoder> decs;
 	private PositionDecoder dec = new PositionDecoder();
 	public static Position receiverPos;
-	
-	
+	private static Analytics analytics = new Analytics();
+
+
 	public ExampleDecoder() {
 		decs = new HashMap<String, PositionDecoder>();
 	}
@@ -85,7 +88,7 @@ public class ExampleDecoder{
 			System.out.println("Unspecified message! Skipping it...");
 			return;
 		}
-		
+
 		String icao24 = tools.toHexString(msg.getIcao24());
 		
 		if (icao != null && !icao.toLowerCase().equals(icao24)) return;
@@ -93,14 +96,14 @@ public class ExampleDecoder{
 		// check for erroneous messages; some receivers set
 		// parity field to the result of the CRC polynomial division
 		if (tools.isZero(msg.getParity()) || msg.checkParity()) { // CRC is ok
-			
+
 			// cleanup decoders every 100.000 messages to avoid excessive memory usage
 			// therefore, remove decoders which have not been used for more than one hour.
 			List<String> to_remove = new ArrayList<String>();
 			for (String key : decs.keySet())
 				if (decs.get(key).getLastUsedTime()<timestamp-3600)
 					to_remove.add(key);
-			
+
 			for (String key : to_remove)
 				decs.remove(key);
 
@@ -124,6 +127,7 @@ public class ExampleDecoder{
 						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
 						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
 
+						analytics.newAirbone(icao24);
 					}
 				}
 				else {
@@ -134,12 +138,12 @@ public class ExampleDecoder{
 				}
 				System.out.println("          Horizontal containment radius is "+airpos.getHorizontalContainmentRadiusLimit()+" m");
 				System.out.println("          Altitude is "+ (airpos.hasAltitude() ? airpos.getAltitude() : "unknown") +" m");
-				
+
 				if (airpos.hasAltitude()){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", airpos.getAltitude()), "ALT");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airpos.getAltitude()), "ALT");
 				}
-				
-				
+
+
 				break;
 			case ADSB_SURFACE_POSITION:
 				SurfacePositionMsg surfpos = (SurfacePositionMsg) msg;
@@ -157,6 +161,8 @@ public class ExampleDecoder{
 						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
 						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
 						DecThread.saver.newDataEntry(timestamp, icao24, "gr", "ALT");
+
+						analytics.newSurf(icao24);
 					}
 				}
 				else {
@@ -190,7 +196,7 @@ public class ExampleDecoder{
 							(airspeed.hasHeadingInfo() ? airspeed.getHeading()+"°" : "unkown"));
 					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getHeading()), "MHEAD");
 				}
-				
+
 				if (airspeed.hasVerticalRateInfo()){
 					System.out.println("          Vertical rate is "+
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
@@ -230,21 +236,21 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: Velocity is "+(veloc.hasVelocityInfo() ? veloc.getVelocity() : "unknown")+" m/s");
 				System.out.println("          Heading is "+(veloc.hasVelocityInfo() ? veloc.getHeading() : "unknown")+" degrees");
 				System.out.println("          Vertical rate is "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" m/s");
-				
+
 				if (veloc.hasVelocityInfo()){
 					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVelocity()), "GS");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getHeading()), "MHEAD");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getHeading()), "TTRACK");
 				}
 				if (veloc.hasVerticalRateInfo()){
 					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVerticalRate()), "VRATE");
 				}
-				
+
 				break;
 			case EXTENDED_SQUITTER:
 				System.out.println("["+icao24+"]: Unknown extended squitter with type code "+((ExtendedSquitter)msg).getFormatTypeCode()+"!");
 				break;
 			default:
-					
+
 			}
 		}
 		else if (msg.getDownlinkFormat() != 17) { // CRC failed
@@ -311,8 +317,9 @@ public class ExampleDecoder{
 		else {
 			System.out.println("Message contains biterrors.");
 		}
+		analytics.newDF(icao24, (int) msg.getDownlinkFormat());
 	}
-	
+
 	public void runDecoder(String icaoFilter) throws Exception{
 		String icao = null; // 44a826
 		System.out.println(Core.inputHexx.getAbsolutePath().toString());
@@ -330,7 +337,7 @@ public class ExampleDecoder{
 		Scanner sc = new Scanner(Core.inputHexx , "UTF-8");
 		ExampleDecoder dec = new ExampleDecoder();
 		while(sc.hasNext()) {
-			
+
 			String[] values = sc.nextLine().split("  *");
 			double timeStamp = Double.parseDouble(values[0]);
 			if (firstEpoch){
@@ -341,7 +348,19 @@ public class ExampleDecoder{
 
 		}
 		sc.close();
+
+		// some printing for debugging an analysis
+		System.out.println("\n---------Analytics--------> " + Core.inputHexx.getName());
+
+		System.out.println("dataType\tcount");
+		for (int i = 0 ; i < DecThread.saver.dataTypes.size(); i++){
+			System.out.println(DecThread.saver.dataTypes.get(i) + "\t" + DecThread.saver.typeCount.get(i));
+		}
+		analytics.printAnalytics();
 		Core.endDecoder(false);
 	}
+
+
+
 
 }

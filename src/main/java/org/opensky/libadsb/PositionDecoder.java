@@ -38,10 +38,15 @@ public class PositionDecoder {
 	private boolean supplC;
 	private int num_reasonable; // number of successive reasonable msgs
 	private Logger logger;
-	
+
+	private double speed;
+	private double last_speed = 0.0;
+//	private double track_angle;
+//	private double last_track_angle = 0.0; // TODO check with track angle
+
 	// distance to receiver threshold
 	private static int MAX_DIST_TO_SENDER = 700000; // 700km
-	
+
 	public PositionDecoder() {
 		last_even_airborne = null;
 		last_odd_airborne = null;
@@ -53,7 +58,7 @@ public class PositionDecoder {
 		num_reasonable = 0;
 		logger = LoggerFactory.getLogger(this.getClass());
 	}
-	
+
 	/**
 	 * This function is used to induce some tolerance if messages
 	 * were received shortly after (due to Internet jitter in timestmaps).
@@ -67,22 +72,22 @@ public class PositionDecoder {
 		double x = abs(timeDifference);
 		double d = abs(distance);
 		double speed = d/x;
-		if (d>2000){
+		if (speed>333){
 			System.out.println(speed);
 		}
-		
-//		if (d/x >= (surface?51.44:514.4)*2.5)
-//			System.err.format("%.2f/%.2f=%.2f\n", d, x, d/x);
-		
-		// may be due to Internet jitter; distance is realistic TODO
-		if (x < 0.7 && d < 2000) return true; 
-		else return d/x < (surface?51.44:514.4)*2.5; // 1000 knots for airborne, 100 for surface
+
+		//		if (d/x >= (surface?51.44:514.4)*2.5)
+		//			System.err.format("%.2f/%.2f=%.2f\n", d, x, d/x);
+
+		// may be due to Internet jitter; distance is realistic
+		if (x < 0.7 && d < 500) return true; 
+		else return d/x < (surface?51.44:514.4); // 1000 knots for airborne, 100 for surface
 	}
 
 	private static boolean withinThreshold (double timeDifference, double distance) {
 		return withinThreshold(timeDifference, distance, false);
 	}
-	
+
 	/**
 	 * This function can be used to check whether distance between sender and
 	 * receiver is reasonable. Sometimes transponders report erroneous positions
@@ -95,8 +100,13 @@ public class PositionDecoder {
 	 */
 	public static boolean withinReasonableRange(Position receiver, Position sender) {
 		return receiver.distanceTo(sender)<=MAX_DIST_TO_SENDER;
-	}
-	
+	}	
+
+//	public static double getTrack(Position pos1, Position pos2){
+//		return (Double) null;
+//	}
+
+
 	/**
 	 * @param time time of applicability/reception of position report
 	 * @param msg airborne position message
@@ -105,26 +115,26 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, AirbornePositionMsg msg) {
 		boolean local = false, global = false;
-		
+
 		if (!msg.hasPosition())
 			return null;
-		
+
 		if (time < last_time) {
 			logger.warn("Position messages should be ordered!");
 		}
-		
+
 		// decide whether to use global or local position decoding
 		if (last_pos != null && abs(time-last_time) < 640) { // 640 seconds corresponds to 180NM with 1000 knots
 			local = true;
 		}
-		
+
 		// can I do global decoding?
 		AirbornePositionMsg last_other = msg.isOddFormat() ? last_even_airborne : last_odd_airborne;
 		double last_other_time = msg.isOddFormat() ? last_even_airborne_time : last_odd_airborne_time;
 		if (last_other != null && abs(time-last_other_time) < 10) { // less than 10 seconds; see 1090 MOPS
 			global = true;
 		}
-		
+
 		// if I can do both, use them for validation
 		Position global_pos = null;
 		if (global) { // do global CPR
@@ -144,7 +154,7 @@ public class PositionDecoder {
 				global = false;
 			}
 		}
-		
+
 		Position local_pos = null;
 		if (local) { // do local CPR
 			try { local_pos = msg.getLocalPosition(last_pos); }
@@ -156,25 +166,33 @@ public class PositionDecoder {
 		}
 
 		//////// Reasonableness Test //////////
-		
+
 		boolean reasonable = true; // be positive :-)
-		double distance_threshold = 10.0; // 10 is a random small distance
-				
-		// check distance between global and local position if possible
+		double distance_threshold = 10; // According to ICAO9871 A.2.7.2
+		if (last_pos != null && global)
+			speed = abs(global_pos.distanceTo(last_pos))/abs(time - last_time); // get speed from global if possible
+		else if (last_pos != null && local)
+			speed = abs(local_pos.distanceTo(last_pos))/abs(time - last_time);
+
+
+		// check distance between global and local position if possible. 89613b, 3420ca, 3964ef
 		if (local && global && global_pos.distanceTo(local_pos) > distance_threshold) {  // should be almost equal
-			logger.debug("Local and global differ by %.2f (icao24: %s)\n",
-					global_pos.distanceTo(local_pos), tools.toHexString(msg.getIcao24()));
-			reasonable = false;
+			local_pos.setLongitude(local_pos.getLongitude()-90); // Often longitudes are shifted 90 degrees east
+			if (global_pos.distanceTo(local_pos) > distance_threshold){
+				logger.debug("Local and global differ by %.2f (icao24: %s)\n",
+						global_pos.distanceTo(local_pos), tools.toHexString(msg.getIcao24()));
+				reasonable = false;
+			}	
 		}
 
 		// check if it's realistic that the airplane covered this distance
-		if (global && last_pos != null &&
-				!withinThreshold(time-last_time, global_pos.distanceTo(last_pos))) { // faster than 1000 knots???
-			logger.debug("'%s' would have been too fast (%.2f m/s) from other position.\n",
-					tools.toHexString(msg.getIcao24()), global_pos.distanceTo(last_pos)/abs(time-last_time));
-			reasonable = false;
-		}
-		
+				if (global && last_pos != null &&
+						!withinThreshold(time-last_time, global_pos.distanceTo(last_pos))) { // faster than 1000 knots???
+					logger.debug("'%s' would have been too fast (%.2f m/s) from other position.\n",
+							tools.toHexString(msg.getIcao24()), global_pos.distanceTo(last_pos)/abs(time-last_time));
+					reasonable = false;
+				}
+
 		// use local CPR to verify even and odd position
 		if (global) {
 			try {
@@ -185,7 +203,7 @@ public class PositionDecoder {
 					logger.debug("Local/Global differ for new message by %.2f m (icao24: %s)\n",
 							dist, tools.toHexString(msg.getIcao24()));
 				}
-				
+
 				// check local/global dist of old message
 				Position other_pos = last_other.getGlobalPosition(msg);
 				dist = other_pos.distanceTo(last_other.getLocalPosition(other_pos));
@@ -194,12 +212,13 @@ public class PositionDecoder {
 					logger.debug("Local/Global differ for old message by %.2f m (icao24: %s)\n",
 							dist, tools.toHexString(msg.getIcao24()));
 				}
-				
+
 				if (!withinThreshold(time-last_other_time, global_pos.distanceTo(other_pos))) { // faster than 1000 knots
 					reasonable = false;
 					logger.debug("'%s' would have been too fast (%.2f m/s) for global.\n",
 							tools.toHexString(msg.getIcao24()), global_pos.distanceTo(other_pos)/abs(last_other_time-time));
 				}
+
 			} catch (MissingInformationException e) {
 				reasonable = false;
 			} catch (BadFormatException e) {
@@ -214,13 +233,30 @@ public class PositionDecoder {
 				!withinThreshold(last_time-time, local_pos.distanceTo(last_pos))) { // faster than 1000 knots???
 			logger.debug("'%s' would be too fast (%.2f/%.2f = %.2f m/s).\n",
 					new Object[] {
-					tools.toHexString(msg.getIcao24()),
-					local_pos.distanceTo(last_pos), abs(time-last_time),
-					local_pos.distanceTo(last_pos)/abs(time-last_time)
+							tools.toHexString(msg.getIcao24()),
+							local_pos.distanceTo(last_pos), abs(time-last_time),
+							local_pos.distanceTo(last_pos)/abs(time-last_time)
 			});
 			reasonable = false;
 		}
-		
+
+		// check if it's realistic that the plane accelerated this speed TODO
+		if (global && last_pos != null && num_reasonable>3 && global_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
+			double acceleration = abs(speed-last_speed)/abs(time-last_time);
+			if (acceleration > 15){
+				reasonable = false;
+			}
+		}
+
+		if (local && last_pos != null && num_reasonable>3 && local_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
+			double acceleration = abs(speed-last_speed)/abs(time-last_time);
+			if (acceleration > 15){
+				reasonable = false;
+			}
+		}
+
+
+
 		// store latest position message
 		if (msg.isOddFormat() && msg.hasPosition()) {
 			last_odd_airborne = msg;
@@ -232,7 +268,7 @@ public class PositionDecoder {
 		}
 
 		Position ret = global ? global_pos : local_pos;
-		
+
 		if (ret != null) {
 			// is it a valid coordinate?
 			if (Math.abs(ret.getLongitude()) > 180.0 || Math.abs(ret.getLatitude()) > 90.0) {
@@ -241,18 +277,23 @@ public class PositionDecoder {
 			ret.setReasonable(reasonable);
 		}
 
-
+		// TODO create last_speed and last_heading for a reasonableness test on acceleration and angular rates
 		if (!reasonable){
 			num_reasonable = 0;
-		}else if (reasonable){ // at least n good msgs before
+		}else{ // at least n good msgs before
 			last_pos = ret;
 			last_time = time;
-			if (num_reasonable++<2)
+			if (last_speed == 0.0)
+				last_speed = speed;
+			else
+				last_speed = (last_speed*0.8 + speed*0.2); // weighted average of speed
+			if (num_reasonable<3)
 				ret = null;
+			num_reasonable++;
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * @param time time of applicability/reception of position report (seconds)
 	 * @param receiver position of the receiver to check if received position was more than 600km away
@@ -265,11 +306,12 @@ public class PositionDecoder {
 		Position ret = decodePosition(time, msg);
 		if (ret != null && receiver != null && !withinReasonableRange(receiver, ret)) {
 			ret.setReasonable(false);
+			last_pos = null;
 			num_reasonable = 0;
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * @param receiver position of the receiver to be included in the reasonableness test
 	 * @param msg airborne position message
@@ -280,7 +322,7 @@ public class PositionDecoder {
 	public Position decodePosition(Position receiver, AirbornePositionMsg msg) {
 		return decodePosition(System.currentTimeMillis()/1000.0, receiver, msg);
 	}
-	
+
 	/**
 	 * Use this method for live decoding only! It assumes that time of applicability
 	 * equals current time! Using this function for older messages might result in
@@ -303,26 +345,26 @@ public class PositionDecoder {
 	 */
 	public Position decodePosition(double time, SurfacePositionMsg msg) {
 		boolean local = false, global = false;
-		
+
 		if (!msg.hasPosition())
 			return null;
-		
+
 		if (time <= last_time) {
 			logger.warn("Position messages should be ordered!");
 		}
-		
+
 		// decide whether to use global or local position decoding
 		if (last_pos != null && abs(time-last_time) < 1620) { // 45NM with 100 knots; see 1090 MOPS
 			local = true;
 		}
-		
+
 		// can I do global decoding?
 		SurfacePositionMsg last_other = msg.isOddFormat() ? last_even_surface : last_odd_surface;
 		double last_other_time = msg.isOddFormat() ? last_even_surface_time : last_odd_surface_time;
 		if (last_other != null && abs(time-last_other_time) < 25) { // less than 25 seconds; see 1090 MOPS
 			global = true;
 		}
-		
+
 		// if I can do both, use them for validation
 		Position global_pos = null;
 		if (global) { // do global CPR
@@ -342,7 +384,7 @@ public class PositionDecoder {
 				global = false;
 			}
 		}
-		
+
 		Position local_pos = null;
 		if (local) { // do local CPR
 			try { local_pos = msg.getLocalPosition(last_pos); }
@@ -354,10 +396,10 @@ public class PositionDecoder {
 		}
 
 		//////// Reasonableness Test //////////
-		
+
 		boolean reasonable = true; // be positive :-)
-		double distance_threshold = 10.0; // 10 is a random small distance
-		
+		double distance_threshold = 1.25; // // According to ICAO9871 A.2.7.2
+
 		// check distance between global and local position if possible
 		if (local && global && global_pos.distanceTo(local_pos) > distance_threshold) {  // should be almost equal
 			logger.debug("Local and global differ by %.2f (icao24: %s)\n",
@@ -372,7 +414,7 @@ public class PositionDecoder {
 					tools.toHexString(msg.getIcao24()), global_pos.distanceTo(last_pos)/abs(time-last_time));
 			reasonable = false;
 		}
-		
+
 		// use local CPR to verify even and odd position
 		if (global) {
 			try {
@@ -383,7 +425,7 @@ public class PositionDecoder {
 					logger.debug("Local/Global differ for new message by %.2f m (icao24: %s)\n",
 							dist, tools.toHexString(msg.getIcao24()));
 				}
-				
+
 				// check local/global dist of old message
 				Position other_pos = last_other.getGlobalPosition(msg);
 				dist = other_pos.distanceTo(last_other.getLocalPosition(other_pos));
@@ -392,7 +434,7 @@ public class PositionDecoder {
 					logger.debug("Local/Global differ for old message by %.2f m (icao24: %s)\n",
 							dist, tools.toHexString(msg.getIcao24()));
 				}
-				
+
 				if (!withinThreshold(time-last_other_time, global_pos.distanceTo(other_pos), true)) { // faster than 1000 knots
 					reasonable = false;
 					logger.debug("'%s' would have been too fast (%.2f m/s) for global.\n",
@@ -412,13 +454,13 @@ public class PositionDecoder {
 				!withinThreshold(last_time-time, local_pos.distanceTo(last_pos), true)) { // faster than 1000 knots???
 			logger.debug("'%s' would be too fast (%.2f/%.2f = %.2f m/s).\n",
 					new Object[] {
-					tools.toHexString(msg.getIcao24()),
-					local_pos.distanceTo(last_pos), abs(time-last_time),
-					local_pos.distanceTo(last_pos)/abs(time-last_time)
+							tools.toHexString(msg.getIcao24()),
+							local_pos.distanceTo(last_pos), abs(time-last_time),
+							local_pos.distanceTo(last_pos)/abs(time-last_time)
 			});
 			reasonable = false;
 		}
-		
+
 		// store latest position message
 		if (msg.isOddFormat() && msg.hasPosition()) {
 			last_odd_surface = msg;
@@ -430,7 +472,7 @@ public class PositionDecoder {
 		}
 
 		Position ret = global ? global_pos : local_pos;
-		
+
 		if (ret != null) {
 			// is it a valid coordinate?
 			if (Math.abs(ret.getLongitude()) > 90.0 ||
@@ -442,7 +484,7 @@ public class PositionDecoder {
 
 		last_pos = ret;
 		last_time = time;
-		
+
 		if (!reasonable){
 			num_reasonable = 0;
 		}else if (reasonable){ // at least n good msgs before
@@ -454,7 +496,7 @@ public class PositionDecoder {
 
 		return ret;
 	}
-	
+
 	/**
 	 * @param time time of applicability/reception of position report (seconds)
 	 * @param receiver position of the receiver to check if received position was more than 600km away
@@ -471,7 +513,7 @@ public class PositionDecoder {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * @param receiver position of the receiver to be included in the reasonableness test
 	 * @param msg airborne position message
@@ -482,7 +524,7 @@ public class PositionDecoder {
 	public Position decodePosition(Position receiver, SurfacePositionMsg msg) {
 		return decodePosition(System.currentTimeMillis()/1000.0, receiver, msg);
 	}
-	
+
 	/**
 	 * Note: use this method for live decoding only! Assumes that time of applicability
 	 * equals current time! Using this function for older messages might result in false
@@ -510,7 +552,7 @@ public class PositionDecoder {
 	public void setNICSupplementA(boolean supplA) {
 		this.supplA = supplA;
 	}
-	
+
 	/**
 	 * NIC Supplement C from operational status messages (subtype 1 only)
 	 * @return NIC Supplement C from operational status messages (subtype 1 only)
@@ -526,7 +568,7 @@ public class PositionDecoder {
 	public void setNICSupplementC(boolean supplC) {
 		this.supplC = supplC;
 	}
-	
+
 	/**
 	 * Returns time when the last position was decoded
 	 * @return the time in seconds
@@ -534,7 +576,7 @@ public class PositionDecoder {
 	public double getLastUsedTime() {
 		return last_time;
 	}
-	
+
 	/**
 	 * @param maxRange in m
 	 */

@@ -24,10 +24,10 @@ public class SaveToDatabase {
 		"LON",
 		"ALT",
 		"VRATE",
-		"MHEAD",
-		"TTRACK",
 		"GS",
+		"TTRACK",
 		"TAS",
+		"MHEAD",
 		"MACH",
 		"IAS",
 		"SELALT",
@@ -36,6 +36,7 @@ public class SaveToDatabase {
 		"BANK",
 		"TURN");
 	private int linesToFlush = 10000;
+	public List<Integer> typeCount = new ArrayList<Integer>(Collections.nCopies(dataTypes.size(), 0));
 	private static int epochPrecision = 0;
 	public int getEpochPrecision() {
 		return epochPrecision;
@@ -55,6 +56,7 @@ public class SaveToDatabase {
 	public void newDataEntry(Double epochTimeUnrounded, String icao, String data, String type){
 		double epochTime = tools.round(epochTimeUnrounded, epochPrecision);
 		int dataTypeIndex = dataTypes.indexOf(type);
+		typeCount.set(dataTypeIndex, typeCount.get(dataTypeIndex)+1);
 		// existing epochTime
 		if (epochMap.containsKey(epochTime)){
 			// existing icao at time

@@ -24,8 +24,6 @@ public class Core extends Thread{
 		guiThread.setName("gui");
 		guiThread.start();
 		
-		decThread = new DecThread();
-		decThread.setName("dec");
 	}
 	
 	
@@ -33,6 +31,8 @@ public class Core extends Thread{
 		if (inputHexx != null){
 			GUIApplication.controller.setPb(-1);
 			SaveToDatabase.setEpochPrecision(epochPrecision);
+			decThread = new DecThread();
+			decThread.setName("dec");
 			decThread.start();
 		}
 	}
