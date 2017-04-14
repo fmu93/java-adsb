@@ -71,6 +71,7 @@ public class ExampleDecoder{
 	private PositionDecoder dec = new PositionDecoder();
 	public static Position receiverPos;
 	private static Analytics analytics = new Analytics();
+	private boolean interrupted = false;
 
 
 	public ExampleDecoder() {
@@ -128,6 +129,7 @@ public class ExampleDecoder{
 						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
 
 						analytics.newAirbone(icao24);
+						analytics.newPos(icao24, String.format("%.6f", current.getLongitude()), String.format("%.6f", current.getLatitude()));
 					}
 				}
 				else {
@@ -141,9 +143,8 @@ public class ExampleDecoder{
 
 				if (airpos.hasAltitude()){
 					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airpos.getAltitude()), "ALT");
+					analytics.newAlt(icao24, airpos.getAltitude());
 				}
-
-
 				break;
 			case ADSB_SURFACE_POSITION:
 				SurfacePositionMsg surfpos = (SurfacePositionMsg) msg;
@@ -163,6 +164,7 @@ public class ExampleDecoder{
 						DecThread.saver.newDataEntry(timestamp, icao24, "gr", "ALT");
 
 						analytics.newSurf(icao24);
+						analytics.newAlt(icao24, 600.0);
 					}
 				}
 				else {
@@ -298,12 +300,22 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: Long altitude reply: "+commBaltitude.getAltitude()+"m");
 				System.out.println("          raw hexx: "+raw);
 				System.out.println("          Comm-B message:"+commBaltitude.getMessage());
+				
+				if (commBaltitude.commBMessage.hasBDS40){
+					analytics.newKollsman(icao24, commBaltitude.commBMessage.kollsman);
+				}
+				
 				break;
 			case COMM_B_IDENTIFY_REPLY:
 				CommBIdentifyReply commBidentify = (CommBIdentifyReply)msg;
 				System.out.println("["+icao24+"]: Long identify reply: "+commBidentify.getIdentity());
 				System.out.println("          raw hexx: "+raw);
 				System.out.println("          Comm-B message:"+commBidentify.getMessage());
+				
+				if (commBidentify.commBMessage.hasBDS40){
+					analytics.newKollsman(icao24, commBidentify.commBMessage.kollsman);
+				}
+				
 				break;
 			case COMM_D_ELM:
 				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;
@@ -336,16 +348,17 @@ public class ExampleDecoder{
 		// iterate over STDIN
 		Scanner sc = new Scanner(Core.inputHexx , "UTF-8");
 		ExampleDecoder dec = new ExampleDecoder();
-		while(sc.hasNext()) {
+		while(sc.hasNext() && !interrupted) {
 
 			String[] values = sc.nextLine().split("  *");
-			double timeStamp = Double.parseDouble(values[0]);
-			if (firstEpoch){
-				DecThread.saver.setWriter(timeStamp);
-				firstEpoch = false;
+			if (values.length == 2){
+				double timeStamp = Double.parseDouble(values[0]);
+				if (firstEpoch){
+					DecThread.saver.setWriter(timeStamp);
+					firstEpoch = false;
+				}
+				dec.decodeMsg(timeStamp, values[1], icao);
 			}
-			dec.decodeMsg(timeStamp, values[1], icao);
-
 		}
 		sc.close();
 
@@ -358,6 +371,10 @@ public class ExampleDecoder{
 		}
 		analytics.printAnalytics();
 		Core.endDecoder(false);
+	}
+	
+	public void setInterrupted(boolean interrupted){
+		this.interrupted = interrupted;
 	}
 
 

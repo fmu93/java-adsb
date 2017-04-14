@@ -23,6 +23,9 @@ public class Controller {
 	@FXML	 private TextField txtRange;
 	@FXML	 private TextField txtLatLon;
 	@FXML	 private ProgressIndicator progInd;
+	@FXML	 private Button btnStop;
+	
+	private File inputHexx;
 
 
 	@FXML    void runDecode(ActionEvent event) throws Exception{
@@ -36,17 +39,30 @@ public class Controller {
 		}
 		Core.runDecoder();
 	}
+	
+	@FXML void stopDecode(){
+		try {
+			Core.endDecoder(true);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@FXML    void selHexx(ActionEvent event) {
 		try{
 			FileChooser fc = new FileChooser();
 			fc.setInitialDirectory(new File(System.getProperty("user.dir")));
-			Core.inputHexx = fc.showOpenDialog(null);
+			inputHexx = fc.showOpenDialog(null);
 
-			if (Core.inputHexx != null){
-				btSelHexx.setText(Core.inputHexx.getName());
+			if (inputHexx != null){
+				btSelHexx.setText(inputHexx.getName());
+				Core.inputHexx = inputHexx;
+				btDecode.setDisable(false);
 			}else{
 				System.out.println("not valid file!");
+				btSelHexx.setText("Select file...");
+				btDecode.setDisable(true);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -76,7 +92,7 @@ public class Controller {
 		}
 	}
 
-	public void setPb(double progress){
+	public void setIndicatorProgress(double progress){
 		try{
 			progInd.setProgress(progress);
 		}catch(Exception e){

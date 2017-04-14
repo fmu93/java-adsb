@@ -18,6 +18,7 @@ import org.opensky.libadsb.tools;
 public class SaveToDatabase {
 	private File outFile;
 	private Map<Double, HashMap<String, List<String>>> epochMap = new LinkedHashMap<Double, HashMap<String, List<String>>>();
+	int keyCount = 0;
 	public List<String> dataTypes = Arrays.asList(
 		"CALL", 
 		"LAT",
@@ -35,14 +36,19 @@ public class SaveToDatabase {
 		"SQUAWK",
 		"BANK",
 		"TURN");
-	private int linesToFlush = 10000;
+	private int linesToFlush = 100000;
 	public List<Integer> typeCount = new ArrayList<Integer>(Collections.nCopies(dataTypes.size(), 0));
 	private static int epochPrecision = 0;
+	
+	public SaveToDatabase(int epochPrecision){
+		SaveToDatabase.epochPrecision = epochPrecision;
+	}
+	
 	public int getEpochPrecision() {
 		return epochPrecision;
 	}
 
-	public static void setEpochPrecision(int epochPrecision1) {
+	public void setEpochPrecision(int epochPrecision1) {
 		epochPrecision = epochPrecision1;
 	}
 
@@ -56,11 +62,12 @@ public class SaveToDatabase {
 	public void newDataEntry(Double epochTimeUnrounded, String icao, String data, String type){
 		double epochTime = tools.round(epochTimeUnrounded, epochPrecision);
 		int dataTypeIndex = dataTypes.indexOf(type);
+		keyCount++;
 		typeCount.set(dataTypeIndex, typeCount.get(dataTypeIndex)+1);
 		// existing epochTime
 		if (epochMap.containsKey(epochTime)){
 			// existing icao at time
-			if (epochMap.get(epochTime).containsKey(icao)){
+			if (epochMap.get(epochTime).containsKey(icao)){				
 				epochMap.get(epochTime).get(icao).set(dataTypeIndex, data);
 				
 				// new icao at time
@@ -80,15 +87,12 @@ public class SaveToDatabase {
 			epochMap.put(epochTime, newIcaoMap);
 		}
 		
-		if (epochMap.size() > linesToFlush){
+		if (keyCount > linesToFlush){
 			flushMemory();
 		}
 		
 	}
 	
-	public void mergeOut(Double lookback){
-		
-	}
 	
 	public void flushMemory(){
 		for (double timestamp : epochMap.keySet()){
@@ -102,6 +106,7 @@ public class SaveToDatabase {
 		}
 		writer.flush();
 		epochMap.clear();
+		keyCount = 0;
 	}
 	
 

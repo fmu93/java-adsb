@@ -2,6 +2,7 @@ package org.opensky.libadsb.msgs;
 
 import java.io.Serializable;
 
+import org.opensky.example.CommBMessage;
 import org.opensky.libadsb.tools;
 import org.opensky.libadsb.exceptions.BadFormatException;
 
@@ -35,6 +36,8 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 	private byte utility_msg;
 	private short identity;
 	private byte[] message;
+	
+	public CommBMessage commBMessage;
 
 	/** protected no-arg constructor e.g. for serialization with Kryo **/
 	protected CommBIdentifyReply() { }
@@ -71,6 +74,8 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 		message = new byte[7];
 		for (int i=0; i<7; i++)
 			message[i] = payload[i+3];
+		
+		commBMessage = new CommBMessage(message);
 	}
 
 	/**

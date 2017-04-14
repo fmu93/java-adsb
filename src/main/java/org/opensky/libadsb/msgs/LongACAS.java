@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.opensky.libadsb.exceptions.BadFormatException;
 
+import output.Analytics;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -76,6 +78,8 @@ public class LongACAS extends ModeSReply implements Serializable {
 		racs_record = (byte) ((payload[5]<<2 | (payload[6]>>>6)&0x3)&0xF);
 		ra_terminated = (payload[6]>>>5&0x1) == 1;
 		multiple_threat_encounter = (payload[6]>>>4&0x1) == 1;	
+		if (!valid_rac)
+			Analytics.newBDS((byte) 0x30);
 	}
 	
 	/**
