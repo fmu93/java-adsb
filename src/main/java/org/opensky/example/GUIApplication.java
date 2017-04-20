@@ -26,7 +26,7 @@ public class GUIApplication extends Application{
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("GUI.fxml"));
 			loader.setController(controller);
 			BorderPane pane = loader.load();
-			Scene scene = new Scene(pane, 480, 250);
+			Scene scene = new Scene(pane, 830, 380);
 			primaryStage.setResizable(false);
 			primaryStage.setScene(scene);
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {

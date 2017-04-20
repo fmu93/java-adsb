@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.opensky.example.Core;
+
 public class Analytics {
 
 	private static List<List<String>> histoDFicao = new ArrayList<List<String>>();
@@ -96,36 +98,38 @@ public class Analytics {
 	}
 
 	public void printAnalytics(){
-		System.out.println("Single occurrence DF icao count:");
+		
+		Core.printConsole("\nSingle occurrence DF icao count:");
 		for (int i = 0; i<histoDFicao.size(); i++){
 			if (histoDFicao.get(i).size() > 0){
-				System.out.print("DF" + i + "\t");
-				System.out.println(histoDFicao.get(i).size());
+				Core.printConsole("DF" + i + "\t" + histoDFicao.get(i).size());
 			}
 		}
-		System.out.println("Total icao count:\t" + icaoList.size());
+		Core.printConsole("\nTotal icao count:\t" + icaoList.size());
 
-		System.out.println("Count of icao with any position:\t" + icaoAnyCount.size());
-		System.out.println("Count of icao with airborne position:\t" + icaoAirborneCount.size());
-		System.out.println("Count of icao with surface position:\t" + icaoSurfCount.size());
+		Core.printConsole("Count of icao with any position:\t" + icaoAnyCount.size());
+		Core.printConsole("Count of icao with airborne position:\t" + icaoAirborneCount.size());
+		Core.printConsole("Count of icao with surface position:\t" + icaoSurfCount.size());
 
 		for (String icao0 : icaoSurfCount){
 			if (icaoAirborneCount.contains(icao0))
 				icaoBothCount.add(icao0);
 		}
-		System.out.println("Count of icao with both positions:\t" + icaoBothCount.size());
+		Core.printConsole("Count of icao with both positions:\t" + icaoBothCount.size());
 
-		System.out.println("BDS assumptions from status bits:");
+		Core.printConsole("\nBDS assumptions from status bits:");
 		for (int i = 0; i<bdsCount.size(); i++){
-			System.out.println("BDS" + (i+4) + "0\t" + bdsCount.get(i));
+			Core.printConsole("BDS" + (i+4) + "0\t" + bdsCount.get(i));
 		}
 		
-//		System.out.println("Assumed decoded kollsman values:");
+//		Core.printConsole("\nAssumed decoded kollsman values:");
+//		Core.printConsole("ICAO\tLon\tLat\tKolls\talt(m)");
 //		for (int i = 0; i<kollsAlt.size(); i++){
+//			String all = "";
 //			for (Object object:kollsAlt.get(i)){
-//				System.out.print(object + "\t");
+//				all += String.valueOf(object) + "\t";
 //			}
-//			System.out.println();
+//			Core.printConsole(all);
 //		}
 
 	}

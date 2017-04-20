@@ -161,6 +161,35 @@ public class pLibrary {
 		}
 	}
 	
+	/**
+	 * @param toPrint 16 bits
+	 */
+	public static void printBinary(short toPrint){
+		System.out.println(String.format("%016d", Integer.valueOf(Integer.toBinaryString(toPrint&0xFFFF))));
+	}
+	
+	/**
+	 * @param toPrint integer into 8 bits (byte)
+	 */
+	public static void printBinary(int toPrint){
+		printBinary((byte) toPrint);
+	}
+	
+	/**
+	 * @param toPrint byte
+	 */
+	public static void printBinary(byte toPrint){
+		System.out.println(String.format("%08d", Integer.valueOf(Integer.toBinaryString(toPrint&0xFF))));
+	}
+	
+	/**
+	 * @param toPrint byte[]
+	 */
+	public static void printBinary(byte[] toPrint){
+		for (byte i:toPrint){
+			printBinary(i);
+		}			
+	}
 	
 	
 	

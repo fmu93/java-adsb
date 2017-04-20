@@ -1,57 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
-   <center>
-      <GridPane prefHeight="56.0" prefWidth="524.0" BorderPane.alignment="CENTER">
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="50.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Button fx:id="btSelHexx" maxWidth="300.0" mnemonicParsing="false" onAction="#selHexx" prefHeight="25.0" prefWidth="200.0" text="Select hexx" GridPane.columnIndex="1" />
-            <TextField fx:id="txtICAO" maxWidth="-Infinity" prefHeight="25.0" prefWidth="90.0" promptText="filter for ICAO" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" />
-            <Label text="Timestamp decimal precision:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="txtPrecis" maxWidth="-Infinity" onAction="#setPrecis" prefHeight="25.0" prefWidth="89.0" promptText="0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="1" />
-            <Label text="For CPR reasonableness test, give receiver position and range:" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-            <Label text="Receiver Lat, Lon:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <TextField fx:id="txtLatLon" maxWidth="-Infinity" promptText="Lat, Lon" text="40.45, -3.57" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="3" />
-            <Label text="Receiver range (km):" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <TextField fx:id="txtRange" maxWidth="-Infinity" promptText="km" text="700" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.vgrow="NEVER" />
-            <Button fx:id="btDecode" disable="true" mnemonicParsing="false" onAction="#runDecode" prefHeight="31.0" prefWidth="181.0" text="Decode" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5">
-               <font>
-                  <Font name="System Bold" size="15.0" />
-               </font></Button>
-            <Label text="(digest will be in input folder)" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-            <ProgressIndicator fx:id="progInd" prefHeight="35.0" prefWidth="66.0" progress="0.0" GridPane.rowIndex="5" />
-            <Button fx:id="btnStop" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#stopDecode" prefHeight="25.0" prefWidth="42.0" text="Stop" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
-         </children>
-      </GridPane>
-   </center>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="380.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
    <top>
-      <HBox prefHeight="20.0" prefWidth="524.0" BorderPane.alignment="CENTER" />
+      <HBox prefHeight="10.0" prefWidth="524.0" BorderPane.alignment="CENTER" />
    </top>
    <bottom>
-      <HBox prefHeight="20.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <HBox prefHeight="10.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </bottom>
+   <center>
+      <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <GridPane prefHeight="56.0" prefWidth="500.0">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="63.0" minWidth="10.0" prefWidth="10.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.0" minWidth="100.0" prefWidth="170.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="10.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Button fx:id="btSelHexx" maxWidth="300.0" mnemonicParsing="false" onAction="#selHexx" prefHeight="25.0" prefWidth="200.0" text="Select hexx" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="txtICAO" maxWidth="-Infinity" prefHeight="25.0" prefWidth="90.0" promptText="filter for ICAO" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="1" />
+                  <Label text="Timestamp decimal precision:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="txtPrecis" maxWidth="-Infinity" onAction="#setPrecis" prefHeight="25.0" prefWidth="60.0" promptText="0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="2" />
+                  <Label contentDisplay="CENTER" text="For CPR reasonableness test:" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                  <Label text="Receiver Lat, Lon:" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <TextField fx:id="txtLatLon" maxWidth="-Infinity" promptText="Lat, Lon" text="40.45, -3.57" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="4" />
+                  <Label text="Receiver range (km):" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <TextField fx:id="txtRange" maxWidth="-Infinity" promptText="km" text="700" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="5" GridPane.vgrow="NEVER" />
+                  <Button fx:id="btDecode" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#runDecode" prefHeight="31.0" prefWidth="145.0" text="Decode" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="6">
+                     <children>
+                        <Button fx:id="btnStop" alignment="CENTER" contentDisplay="CENTER" disable="true" layoutX="59.0" layoutY="15.0" mnemonicParsing="false" onAction="#stopDecode" prefHeight="28.0" prefWidth="53.0" text="Stop" />
+                        <ProgressIndicator fx:id="progInd" layoutY="15.0" prefHeight="36.0" prefWidth="51.0" progress="0.0" />
+                     </children>
+                  </Pane>
+               </children>
+            </GridPane>
+            <Separator orientation="VERTICAL" prefHeight="200.0" />
+            <TextArea fx:id="txtConsole" editable="false" prefHeight="345.0" prefWidth="656.0" promptText="console...">
+               <HBox.margin>
+                  <Insets left="5.0" right="10.0" />
+               </HBox.margin>
+               <font>
+                  <Font name="Consolas" size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </TextArea>
+         </children>
+      </HBox>
+   </center>
 </BorderPane>

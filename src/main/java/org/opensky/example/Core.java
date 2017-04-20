@@ -46,6 +46,14 @@ public class Core{
 			}
 		});
 	}
+	
+	public static void printConsole(final String message){
+		Platform.runLater(new Runnable(){
+			public void run(){
+				GUIApplication.controller.printConsole(message);
+			}
+		});
+	}
 
 }
 

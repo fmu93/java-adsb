@@ -23,19 +23,23 @@ public class SaveToDatabase {
 		"CALL", 
 		"LAT",
 		"LON",
-		"ALT",
+		"FL",
 		"VRATE",
 		"GS",
 		"TTRACK",
 		"TAS",
 		"MHEAD",
-		"MACH",
-		"IAS",
-		"SELALT",
-		"KOLL",
 		"SQUAWK",
-		"BANK",
-		"TURN");
+		"SELALT4",
+		"KOLLS4",
+		"ROLL5",
+		"TTRACK5",
+		"GS5",
+		"TURNR5",
+		"TAS5",
+		"MHEAD6",
+		"IAS6",
+		"MACH6");
 	private int linesToFlush = 100000;
 	public List<Integer> typeCount = new ArrayList<Integer>(Collections.nCopies(dataTypes.size(), 0));
 	private static int epochPrecision = 0;

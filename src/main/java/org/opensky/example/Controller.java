@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.stage.FileChooser;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 
@@ -24,8 +25,10 @@ public class Controller {
 	@FXML	 private TextField txtLatLon;
 	@FXML	 private ProgressIndicator progInd;
 	@FXML	 private Button btnStop;
-	
+	@FXML	 private TextArea txtConsole;
+
 	private File inputHexx;
+	private String currentText = "";
 
 
 	@FXML    void runDecode(ActionEvent event) throws Exception{
@@ -39,12 +42,11 @@ public class Controller {
 		}
 		Core.runDecoder();
 	}
-	
+
 	@FXML void stopDecode(){
 		try {
 			Core.endDecoder(true);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -59,10 +61,12 @@ public class Controller {
 				btSelHexx.setText(inputHexx.getName());
 				Core.inputHexx = inputHexx;
 				btDecode.setDisable(false);
+				btnStop.setDisable(false);
 			}else{
-				System.out.println("not valid file!");
+				Core.printConsole("not valid file!");
 				btSelHexx.setText("Select file...");
 				btDecode.setDisable(true);
+				btnStop.setDisable(true);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -93,11 +97,13 @@ public class Controller {
 	}
 
 	public void setIndicatorProgress(double progress){
-		try{
-			progInd.setProgress(progress);
-		}catch(Exception e){
+		progInd.setProgress(progress);
+	}
 
-		}
+	public void printConsole(String message){
+		currentText = currentText + message + "\n";
+		txtConsole.setText(currentText);
+		txtConsole.positionCaret(currentText.length());
 	}
 
 }

@@ -142,7 +142,7 @@ public class ExampleDecoder{
 				System.out.println("          Altitude is "+ (airpos.hasAltitude() ? airpos.getAltitude() : "unknown") +" m");
 
 				if (airpos.hasAltitude()){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airpos.getAltitude()), "ALT");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.3f", airpos.getAltitude()/30.48), "FL");
 					analytics.newAlt(icao24, airpos.getAltitude());
 				}
 				break;
@@ -161,7 +161,7 @@ public class ExampleDecoder{
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
 						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
 						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
-						DecThread.saver.newDataEntry(timestamp, icao24, "gr", "ALT");
+						DecThread.saver.newDataEntry(timestamp, icao24, "gr", "FL");
 
 						analytics.newSurf(icao24);
 						analytics.newAlt(icao24, 600.0);
@@ -274,6 +274,7 @@ public class ExampleDecoder{
 			case IDENTIFY_REPLY:
 				IdentifyReply identify = (IdentifyReply)msg;
 				System.out.println("["+icao24+"]: Short identify reply: "+identify.getIdentity());
+				DecThread.saver.newDataEntry(timestamp, icao24, identify.getIdentity(), "SQUAWK");
 				break;
 			case ALL_CALL_REPLY:
 				AllCallReply allcall = (AllCallReply)msg;
@@ -303,6 +304,16 @@ public class ExampleDecoder{
 				
 				if (commBaltitude.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBaltitude.commBMessage.kollsman);
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.kollsman), "KOLLS4");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.select_alt_MCP), "SELALT4");
+				}
+				
+				if (commBaltitude.commBMessage.hasBDS50){
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBaltitude.commBMessage.rollAngle), "ROLL5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.trueTrackAngle), "TTRACK5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.gorundSpeed), "GS5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBaltitude.commBMessage.trackAngleRate), "TURNR5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.trueAirspeed), "TAS5");
 				}
 				
 				break;
@@ -314,6 +325,16 @@ public class ExampleDecoder{
 				
 				if (commBidentify.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBidentify.commBMessage.kollsman);
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.kollsman), "KOLLS4");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.select_alt_MCP), "SELALT4");
+				}
+				
+				if (commBidentify.commBMessage.hasBDS50){
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBidentify.commBMessage.rollAngle), "ROLL5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.trueTrackAngle), "TTRACK5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.gorundSpeed), "GS5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBidentify.commBMessage.trackAngleRate), "TURNR5");
+					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.trueAirspeed), "TAS5");
 				}
 				
 				break;
@@ -334,7 +355,7 @@ public class ExampleDecoder{
 
 	public void runDecoder(String icaoFilter) throws Exception{
 		String icao = null; // 44a826
-		System.out.println(Core.inputHexx.getAbsolutePath().toString());
+		Core.printConsole(Core.inputHexx.getAbsolutePath().toString());
 		if (icaoFilter.length() > 0) {
 			icao = icaoFilter;
 			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
@@ -363,11 +384,11 @@ public class ExampleDecoder{
 		sc.close();
 
 		// some printing for debugging an analysis
-		System.out.println("\n---------Analytics--------> " + Core.inputHexx.getName());
+		Core.printConsole("\nAnalytics--> " + Core.inputHexx.getName());
 
-		System.out.println("dataType\tcount");
+		Core.printConsole("dataType\tcount");
 		for (int i = 0 ; i < DecThread.saver.dataTypes.size(); i++){
-			System.out.println(DecThread.saver.dataTypes.get(i) + "\t" + DecThread.saver.typeCount.get(i));
+			Core.printConsole(DecThread.saver.dataTypes.get(i) + "\t" + DecThread.saver.typeCount.get(i));
 		}
 		analytics.printAnalytics();
 		Core.endDecoder(false);

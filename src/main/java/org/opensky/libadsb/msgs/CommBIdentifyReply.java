@@ -73,7 +73,7 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 		// extract Comm-B message
 		message = new byte[7];
 		for (int i=0; i<7; i++)
-			message[i] = payload[i+3];
+			message[i] = (byte) (payload[i+3]&0xFF);
 		
 		commBMessage = new CommBMessage(message);
 	}
