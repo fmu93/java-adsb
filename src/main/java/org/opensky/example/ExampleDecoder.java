@@ -376,6 +376,7 @@ public class ExampleDecoder{
 		if (icaoFilter.length() > 0) {
 			icao = icaoFilter;
 			System.err.println("Set filter to ICAO 24-bit ID '"+icao+"'.");
+			Core.printConsole("Set filter to ICAO 24-bit ID '"+icao+"'.");
 		}
 		if (Core.receiverReason != null){
 			receiverPos = new Position(Core.receiverReason.get(1), Core.receiverReason.get(0), 0.0);
