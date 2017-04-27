@@ -205,7 +205,7 @@ public class ExampleDecoder{
 				if (airspeed.hasVerticalRateInfo()){
 					System.out.println("          Vertical rate is "+
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
-					saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getVerticalRate()), "VRATE");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getVerticalRate()/0.3048), "VRATE");
 				}
 				break;
 			case ADSB_IDENTIFICATION:
@@ -247,7 +247,7 @@ public class ExampleDecoder{
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getHeading()), "TTRACK");
 				}
 				if (veloc.hasVerticalRateInfo()){
-					saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVerticalRate()), "VRATE");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVerticalRate()/0.3048), "VRATE");
 				}
 
 				break;

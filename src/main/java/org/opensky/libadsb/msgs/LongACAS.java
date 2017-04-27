@@ -70,11 +70,11 @@ public class LongACAS extends ModeSReply implements Serializable {
 		airborne = (getFirstField()&0x4)==0;
 		sensitivity_level = (byte) ((payload[0]>>>5)&0x7);
 		reply_information = (byte) ((payload[0]&0x7)<<1 | (payload[1]>>>7)&0x1);
-		altitude_code = (short) ((payload[1]<<8 | payload[2]&0xFF)&0x1FFF);
+		altitude_code = (short) ((payload[1]<<8&0xFF00 | payload[2]&0xFF)&0x1FFF);
 		
 		// extract MV/air-air coordination info
 		valid_rac = payload[3] != 0x30;
-		active_resolution_advisories = (short) ((payload[4]<<6 | (payload[5]>>>2)&0x3)&0x3FFF);
+		active_resolution_advisories = (short) ((payload[4]<<6&0x3FC0 | (payload[5]>>>2)&0x3)&0x3FFF);
 		racs_record = (byte) ((payload[5]<<2 | (payload[6]>>>6)&0x3)&0xF);
 		ra_terminated = (payload[6]>>>5&0x1) == 1;
 		multiple_threat_encounter = (payload[6]>>>4&0x1) == 1;	

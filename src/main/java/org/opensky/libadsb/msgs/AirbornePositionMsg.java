@@ -74,7 +74,7 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 		surveillance_status = (byte) ((msg[0]>>>1)&0x3);
 		nic_suppl_b = (msg[0]&0x1) == 1;
 
-		altitude_encoded = (short) (((msg[1]<<4)|((msg[2]>>>4)&0xF))&0xFFF);
+		altitude_encoded = (short) (((msg[1]<<4&0xFF0)|((msg[2]>>>4)&0xF))&0xFFF);
 		altitude_available = altitude_encoded != 0;
 
 		time_flag = ((msg[2]>>>3)&0x1) == 1;

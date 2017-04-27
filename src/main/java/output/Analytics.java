@@ -139,14 +139,14 @@ public class Analytics {
 
 	public void printAnalytics(){
 		
+		Core.printConsole("\nTotal icao count:\t" + icaoList.size());
 		Core.printConsole("\nAmount of identified aircraft that sent a DF at least once:");
 		for (int i = 0; i<histoDFicao.size(); i++){
 			if (histoDFicao.get(i).size() > 0){
 				Core.printConsole("DF" + i + "\t" + String.format("%.2f", (double) histoDFicao.get(i).size()/icaoList.size()*100) + " %"); //);
 			}
 		}
-		Core.printConsole("\nTotal icao count:\t" + icaoList.size());
-
+		
 		Core.printConsole("Count of icao with any position:\t" + icaoAnyCount.size());
 		Core.printConsole("Count of icao with airborne position:\t" + icaoAirborneCount.size());
 		Core.printConsole("Count of icao with surface position:\t" + icaoSurfCount.size());

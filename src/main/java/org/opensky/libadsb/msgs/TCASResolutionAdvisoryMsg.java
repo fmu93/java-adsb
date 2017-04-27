@@ -65,12 +65,12 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 		if (msg_subtype != 2)
 			throw new BadFormatException("TCAS RA reports have subtype 2.");
 		
-		active_ra = (short) (((msg[2]>>>2) | (msg[1]<<6)) & 0x3FFF);
+		active_ra = (short) (((msg[1]<<6&0x3FC0 | (msg[2]>>>2))) & 0x3FFF);
 		racs_record = (byte) ((((msg[2]&0x3)<<2) | (msg[3]>>>6)) & 0xF);
 		ra_terminated = (msg[3]&0x20) > 0;
 		multi_threat_encounter = (msg[3]&0x10) > 0;
 		threat_type = (byte) ((msg[3]>>>2)&0x3);
-		threat_identity = (msg[6] | (msg[5]<<8) | (msg[4]<<16) | ((msg[4]&0x3)<<24)) & 0x3FFFFFF;
+		threat_identity = (msg[6] | (msg[5]<<8&0xFF00) | (msg[4]<<16&0xFF0000) | ((msg[4]&0x3)<<24&0xFF000000)) & 0x3FFFFFF;
 	}
 	
 	/**

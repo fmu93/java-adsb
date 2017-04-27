@@ -85,18 +85,18 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		geo_minus_baro_available = true;
 		
 		direction_west = (msg[1]&0x4)>0;
-		east_west_velocity = (short) (((msg[1]&0x3)<<8 | msg[2]&0xFF)-1);
+		east_west_velocity = (short) (((msg[1]&0x3)<<8&0xFF00 | msg[2]&0xFF)-1);
 		if (east_west_velocity == -1) velocity_info_available = false;
 		if (msg_subtype == 2) east_west_velocity<<=2;
 		
 		direction_south = (msg[3]&0x80)>0;
-		north_south_velocity = (short) (((msg[3]&0x7F)<<3 | msg[4]>>>5&0x07)-1);
+		north_south_velocity = (short) (((msg[3]&0x7F)<<3&0x7F8 | msg[4]>>>5&0x07)-1);
 		if (north_south_velocity == -1) velocity_info_available = false;
 		if (msg_subtype == 2) north_south_velocity<<=2;
 
 		vertical_source = (msg[4]&0x10)>0;
 		vertical_rate_down = (msg[4]&0x08)>0;
-		vertical_rate = (short) ((((msg[4]&0x07)<<6 | msg[5]>>>2&0x3F)-1)<<6);
+		vertical_rate = (short) ((((msg[4]&0x07)<<6&0x3FC0 | msg[5]>>>2&0x3F)-1)<<6);
 		if (vertical_rate == -1) vertical_rate_info_available = false;
 		
 		geo_minus_baro = (short) (((msg[6]&0x7F)-1)*25);
