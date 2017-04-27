@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -34,7 +35,12 @@ public class GUIApplication extends Application{
 					beforeClose();
 				}
 			});
-			primaryStage.setTitle("Mode S / ADS-B decoder");
+			primaryStage.setTitle("ADS-B decoder / Innaxis");
+			try{
+				primaryStage.getIcons().add(new Image("images/02.png"));
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 			primaryStage.show();
 		}catch(Exception e){
 			e.printStackTrace();

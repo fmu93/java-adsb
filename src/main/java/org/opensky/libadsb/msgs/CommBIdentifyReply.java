@@ -68,14 +68,14 @@ public class CommBIdentifyReply extends ModeSReply implements Serializable {
 		flight_status = getFirstField();
 		downlink_request = (byte) ((payload[0]>>>3) & 0x1F);
 		utility_msg = (byte) ((payload[0]&0x7)<<3 | (payload[1]>>>5)&0x7);
-		identity = (short) ((payload[1]<<8 | payload[2])&0x1FFF);
+		identity = (short) ((payload[1]<<8&0xFF00 | payload[2])&0x1FFF);
 		
 		// extract Comm-B message
 		message = new byte[7];
 		for (int i=0; i<7; i++)
-			message[i] = (byte) (payload[i+3]&0xFF);
+			message[i] = payload[i+3];
 		
-		commBMessage = new CommBMessage(message);
+		commBMessage = new CommBMessage(message, tools.toHexString(reply.getIcao24()));
 	}
 
 	/**

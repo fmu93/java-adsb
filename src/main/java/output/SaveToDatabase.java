@@ -13,7 +13,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.opensky.example.LastDatas;
 import org.opensky.libadsb.tools;
+
 
 public class SaveToDatabase {
 	private File outFile;
@@ -81,7 +83,6 @@ public class SaveToDatabase {
 				epochMap.get(epochTime).put(icao, newList);
 			}
 			
-			
 			// new epochTime with new icao
 		}else{
 			List<String> newList = new ArrayList<String>(Collections.nCopies(dataTypes.size(), ""));
@@ -94,7 +95,7 @@ public class SaveToDatabase {
 		if (keyCount > linesToFlush){
 			flushMemory();
 		}
-		
+		LastDatas.setAircraftData(epochTime, icao, data, dataTypeIndex);
 	}
 	
 	
@@ -108,7 +109,7 @@ public class SaveToDatabase {
 				writer.println(lineToWrite);
 			}
 		}
-		writer.flush();
+//		writer.flush();
 		epochMap.clear();
 		keyCount = 0;
 	}
@@ -118,10 +119,8 @@ public class SaveToDatabase {
 		try {
 			writer = new PrintWriter(outFile, "UTF-8");
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		String header = new String();
@@ -138,6 +137,8 @@ public class SaveToDatabase {
 		writer.close();
 		
 	}
+	
+	
 	
 	
 	

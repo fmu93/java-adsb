@@ -8,6 +8,8 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -34,14 +36,14 @@
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="10.0" />
               </columnConstraints>
               <rowConstraints>
-                  <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="20.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Button fx:id="btSelHexx" maxWidth="300.0" mnemonicParsing="false" onAction="#selHexx" prefHeight="25.0" prefWidth="200.0" text="Select hexx" GridPane.columnIndex="1" GridPane.rowIndex="1" />
@@ -64,10 +66,19 @@
                         <ProgressIndicator fx:id="progInd" layoutY="15.0" prefHeight="36.0" prefWidth="51.0" progress="0.0" />
                      </children>
                   </Pane>
+                  <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2">
+                     <children>
+                        <ImageView fitHeight="32.0" fitWidth="112.0" layoutX="86.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../../images/innaxis_logo.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </Pane>
                </children>
             </GridPane>
             <Separator orientation="VERTICAL" prefHeight="200.0" />
-            <TextArea fx:id="txtConsole" editable="false" prefHeight="345.0" prefWidth="656.0" promptText="console...">
+            <TextArea fx:id="txtConsole" editable="false" prefHeight="345.0" prefWidth="656.0" promptText="console..." wrapText="true">
                <HBox.margin>
                   <Insets left="5.0" right="10.0" />
                </HBox.margin>

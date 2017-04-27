@@ -22,6 +22,15 @@ public class Analytics {
 	private static HashMap<String, Integer> last_alt = new HashMap<String, Integer>();
 	private static HashMap<String, List<String>> last_pos = new HashMap<String, List<String>>();
 	private static List<Object[]> kollsAlt = new ArrayList<Object[]>();
+	private static double typeAll = 0;
+	private static int typeIdent = 0;
+	private static int typeSurf = 0;
+	private static int typeAirBaro = 0;
+	private static int typeSpeed = 0;
+	private static int typeAirGNSS = 0;
+	private static int typeOther = 0;
+	private static int typeStatus = 0;
+	private static int typeEmerg = 0;
 
 
 	public Analytics(){
@@ -29,6 +38,16 @@ public class Analytics {
 		for (int i = 0; i<25 ; i++){
 			histoDFicao.add(new ArrayList<String>());
 		}
+		bdsCount = new ArrayList<Integer>(Collections.nCopies(3, 0));
+		typeAll = 0;
+		typeIdent = 0;
+		typeSurf = 0;
+		typeAirBaro = 0;
+		typeSpeed = 0;
+		typeAirGNSS = 0;
+		typeOther = 0;
+		typeStatus = 0;
+		typeEmerg = 0;
 	}
 
 	public void newAlt(String icao, Double alt){
@@ -96,13 +115,34 @@ public class Analytics {
 			kollsAlt.add(object);
 		}
 	}
+	
+	public static void newPositionTypeCode(int typeCode){
+		typeAll++;
+		if (typeCode>0 && typeCode<5){
+			typeIdent++;
+		}else if (typeCode>4 && typeCode<9){
+			typeSurf++;
+		}else if (typeCode>8 && typeCode<19){
+			typeAirBaro++;
+		}else if (typeCode == 19){
+			typeSpeed++;	
+		}else if (typeCode>19 && typeCode<23){
+			typeAirGNSS++;
+		}else if (typeCode == 31){
+			typeStatus++;
+		}else if (typeCode == 28){
+			typeEmerg++;
+		}else if (typeCode>22 || typeCode<1 || typeCode == 19){
+			typeOther++;
+		}
+	}
 
 	public void printAnalytics(){
 		
-		Core.printConsole("\nSingle occurrence DF icao count:");
+		Core.printConsole("\nAmount of identified aircraft that sent a DF at least once:");
 		for (int i = 0; i<histoDFicao.size(); i++){
 			if (histoDFicao.get(i).size() > 0){
-				Core.printConsole("DF" + i + "\t" + histoDFicao.get(i).size());
+				Core.printConsole("DF" + i + "\t" + String.format("%.2f", (double) histoDFicao.get(i).size()/icaoList.size()*100) + " %"); //);
 			}
 		}
 		Core.printConsole("\nTotal icao count:\t" + icaoList.size());
@@ -117,20 +157,20 @@ public class Analytics {
 		}
 		Core.printConsole("Count of icao with both positions:\t" + icaoBothCount.size());
 
-		Core.printConsole("\nBDS assumptions from status bits:");
+		Core.printConsole("\nValidated BDS's:");
 		for (int i = 0; i<bdsCount.size(); i++){
 			Core.printConsole("BDS" + (i+4) + "0\t" + bdsCount.get(i));
 		}
 		
-//		Core.printConsole("\nAssumed decoded kollsman values:");
-//		Core.printConsole("ICAO\tLon\tLat\tKolls\talt(m)");
-//		for (int i = 0; i<kollsAlt.size(); i++){
-//			String all = "";
-//			for (Object object:kollsAlt.get(i)){
-//				all += String.valueOf(object) + "\t";
-//			}
-//			Core.printConsole(all);
-//		}
+		Core.printConsole("\nCount of format ADS-B format type codes:");
+		Core.printConsole("Identification:\t" + String.format("%.2f", typeIdent/typeAll*100) + " %");
+		Core.printConsole("Surface:\t" + String.format("%.2f", typeSurf/typeAll*100) + " %");
+		Core.printConsole("Airborne barometric alt:\t" + String.format("%.2f", typeAirBaro/typeAll*100) + " %");
+		Core.printConsole("Speed:\t" + String.format("%.2f", typeSpeed/typeAll*100) + " %");
+		Core.printConsole("Airborne GNSS alt:\t" + String.format("%.2f", typeAirGNSS/typeAll*100) + " %");
+		Core.printConsole("Emergency, ACAS RA:\t" + String.format("%.2f", typeEmerg/typeAll*100) + " %");
+		Core.printConsole("Status:\t" + String.format("%.2f", typeStatus/typeAll*100) + " %");
+		Core.printConsole("Other (reserved, test...):\t" + String.format("%.2f", typeOther/typeAll*100) + " %");
 
 	}
 

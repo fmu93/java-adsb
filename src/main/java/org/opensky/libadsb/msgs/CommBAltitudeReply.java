@@ -75,7 +75,7 @@ public class CommBAltitudeReply extends ModeSReply implements Serializable {
 		for (int i=0; i<7; i++)
 			message[i] = payload[i+3];
 		
-		commBMessage = new CommBMessage(message);
+		commBMessage = new CommBMessage(message, tools.toHexString(reply.getIcao24()));
 	}
 
 	/**

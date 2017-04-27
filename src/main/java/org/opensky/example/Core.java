@@ -62,8 +62,9 @@ class DecThread extends Thread{
 	public static ExampleDecoder decoder;
 
 	public void run(){
-		decoder = new ExampleDecoder();
+
 		saver = new SaveToDatabase(Core.epochPrecision);
+		decoder = new ExampleDecoder();
 		try{					
 			String outFix = "digest_";
 			String outFileName = outFix + Core.inputHexx.getName();

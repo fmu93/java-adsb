@@ -48,6 +48,7 @@ import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
 import output.Analytics;
+import output.SaveToDatabase;
 
 /**
  * ADS-B decoder example: It reads STDIN line-by-line. It should be fed with
@@ -70,12 +71,14 @@ public class ExampleDecoder{
 	HashMap<String, PositionDecoder> decs;
 	private PositionDecoder dec = new PositionDecoder();
 	public static Position receiverPos;
+	private static SaveToDatabase saver;
 	private static Analytics analytics = new Analytics();
 	private boolean interrupted = false;
 
 
 	public ExampleDecoder() {
 		decs = new HashMap<String, PositionDecoder>();
+		saver = DecThread.saver;
 	}
 
 	public void decodeMsg(double timestamp, String raw, String icao) throws Exception {
@@ -125,8 +128,8 @@ public class ExampleDecoder{
 					}else{
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
 
-						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
-						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
+						saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
+						saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
 
 						analytics.newAirbone(icao24);
 						analytics.newPos(icao24, String.format("%.6f", current.getLongitude()), String.format("%.6f", current.getLatitude()));
@@ -142,7 +145,7 @@ public class ExampleDecoder{
 				System.out.println("          Altitude is "+ (airpos.hasAltitude() ? airpos.getAltitude() : "unknown") +" m");
 
 				if (airpos.hasAltitude()){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.3f", airpos.getAltitude()/30.48), "FL");
+					saver.newDataEntry(timestamp, icao24, String.format("%.2f", airpos.getAltitude()/30.48), "FL");
 					analytics.newAlt(icao24, airpos.getAltitude());
 				}
 				break;
@@ -159,9 +162,9 @@ public class ExampleDecoder{
 						System.out.println("Cannot decode position yet.");
 					else{
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
-						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
-						DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
-						DecThread.saver.newDataEntry(timestamp, icao24, "gr", "FL");
+						saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
+						saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
+						saver.newDataEntry(timestamp, icao24, "gr", "FL");
 
 						analytics.newSurf(icao24);
 						analytics.newAlt(icao24, 600.0);
@@ -176,7 +179,7 @@ public class ExampleDecoder{
 				System.out.println("          Horizontal containment radius is "+surfpos.getHorizontalContainmentRadiusLimit()+" m");
 				if (surfpos.hasValidHeading()){
 					System.out.println("          Heading is "+surfpos.getHeading()+" m");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", surfpos.getHeading()), "MHEAD");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", surfpos.getHeading()), "MHEAD");
 				}
 				System.out.println("          Airplane is on the ground.");
 				break;
@@ -191,25 +194,25 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: Airspeed is "+
 						(airspeed.hasAirspeedInfo() ? airspeed.getAirspeed()+" m/s" : "unkown"));
 				if (airspeed.hasAirspeedInfo()){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getAirspeed()), "TAS");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getAirspeed()), "TAS");
 				}
 				if (airspeed.hasHeadingInfo()){
 					System.out.println("          Heading is "+
 							(airspeed.hasHeadingInfo() ? airspeed.getHeading()+"°" : "unkown"));
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getHeading()), "MHEAD");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getHeading()), "MHEAD");
 				}
 
 				if (airspeed.hasVerticalRateInfo()){
 					System.out.println("          Vertical rate is "+
 							(airspeed.hasVerticalRateInfo() ? airspeed.getVerticalRate()+" m/s" : "unkown"));
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getVerticalRate()), "VRATE");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", airspeed.getVerticalRate()), "VRATE");
 				}
 				break;
 			case ADSB_IDENTIFICATION:
 				IdentificationMsg ident = (IdentificationMsg) msg;
 				System.out.println("["+icao24+"]: Callsign is "+new String(ident.getIdentity()));
 				System.out.println("          Category: "+ident.getCategoryDescription());
-				DecThread.saver.newDataEntry(timestamp, icao24, new String(ident.getIdentity()), "CALL");
+				saver.newDataEntry(timestamp, icao24, new String(ident.getIdentity()), "CALL");
 				break;
 			case ADSB_STATUS:
 				OperationalStatusMsg opstat = (OperationalStatusMsg) msg;
@@ -240,11 +243,11 @@ public class ExampleDecoder{
 				System.out.println("          Vertical rate is "+(veloc.hasVerticalRateInfo() ? veloc.getVerticalRate() : "unknown")+" m/s");
 
 				if (veloc.hasVelocityInfo()){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVelocity()), "GS");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getHeading()), "TTRACK");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVelocity()), "GS");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getHeading()), "TTRACK");
 				}
 				if (veloc.hasVerticalRateInfo()){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVerticalRate()), "VRATE");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", veloc.getVerticalRate()), "VRATE");
 				}
 
 				break;
@@ -274,7 +277,7 @@ public class ExampleDecoder{
 			case IDENTIFY_REPLY:
 				IdentifyReply identify = (IdentifyReply)msg;
 				System.out.println("["+icao24+"]: Short identify reply: "+identify.getIdentity());
-				DecThread.saver.newDataEntry(timestamp, icao24, identify.getIdentity(), "SQUAWK");
+				saver.newDataEntry(timestamp, icao24, identify.getIdentity(), "SQUAWK");
 				break;
 			case ALL_CALL_REPLY:
 				AllCallReply allcall = (AllCallReply)msg;
@@ -304,16 +307,22 @@ public class ExampleDecoder{
 				
 				if (commBaltitude.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBaltitude.commBMessage.kollsman);
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.kollsman), "KOLLS4");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.select_alt_MCP), "SELALT4");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.kollsman), "KOLLS4");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.select_alt_MCP), "SELALT4");
 				}
 				
-				if (commBaltitude.commBMessage.hasBDS50){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBaltitude.commBMessage.rollAngle), "ROLL5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.trueTrackAngle), "TTRACK5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.gorundSpeed), "GS5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBaltitude.commBMessage.trackAngleRate), "TURNR5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.trueAirspeed), "TAS5");
+				else if (commBaltitude.commBMessage.hasBDS50){
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.rollAngle), "ROLL5");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.trueTrackAngle), "TTRACK5");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.gorundSpeed), "GS5");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.trackAngleRate), "TURNR5");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.trueAirspeed), "TAS5");
+				}
+				
+				else if (commBaltitude.commBMessage.hasBDS60){
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.magneticHeading), "MHEAD6");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.indicatedAirspeed), "IAS6");
+					saver.newDataEntry(timestamp, icao24, String.format("%.3f", commBaltitude.commBMessage.mach), "MACH6");
 				}
 				
 				break;
@@ -322,19 +331,27 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: Long identify reply: "+commBidentify.getIdentity());
 				System.out.println("          raw hexx: "+raw);
 				System.out.println("          Comm-B message:"+commBidentify.getMessage());
+
+				saver.newDataEntry(timestamp, icao24, commBidentify.getIdentity(), "SQUAWK");
 				
 				if (commBidentify.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBidentify.commBMessage.kollsman);
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.kollsman), "KOLLS4");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.select_alt_MCP), "SELALT4");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.kollsman), "KOLLS4");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.select_alt_MCP), "SELALT4");
 				}
 				
-				if (commBidentify.commBMessage.hasBDS50){
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBidentify.commBMessage.rollAngle), "ROLL5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.trueTrackAngle), "TTRACK5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.gorundSpeed), "GS5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBidentify.commBMessage.trackAngleRate), "TURNR5");
-					DecThread.saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.trueAirspeed), "TAS5");
+				else if (commBidentify.commBMessage.hasBDS50){
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.rollAngle), "ROLL5");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.trueTrackAngle), "TTRACK5");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.gorundSpeed), "GS5");
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.trackAngleRate), "TURNR5");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.trueAirspeed), "TAS5");
+				}
+				
+				else if (commBidentify.commBMessage.hasBDS60){
+					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.magneticHeading), "MHEAD6");
+					saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.indicatedAirspeed), "IAS6");
+					saver.newDataEntry(timestamp, icao24, String.format("%.3f", commBidentify.commBMessage.mach), "MACH6");
 				}
 				
 				break;
@@ -375,8 +392,9 @@ public class ExampleDecoder{
 			if (values.length == 2){
 				double timeStamp = Double.parseDouble(values[0]);
 				if (firstEpoch){
-					DecThread.saver.setWriter(timeStamp);
+					saver.setWriter(timeStamp);
 					firstEpoch = false;
+					Core.printConsole("First time: " + tools.epoch2time((long) timeStamp));
 				}
 				dec.decodeMsg(timeStamp, values[1], icao);
 			}
@@ -387,8 +405,8 @@ public class ExampleDecoder{
 		Core.printConsole("\nAnalytics--> " + Core.inputHexx.getName());
 
 		Core.printConsole("dataType\tcount");
-		for (int i = 0 ; i < DecThread.saver.dataTypes.size(); i++){
-			Core.printConsole(DecThread.saver.dataTypes.get(i) + "\t" + DecThread.saver.typeCount.get(i));
+		for (int i = 0 ; i < saver.dataTypes.size(); i++){
+			Core.printConsole(saver.dataTypes.get(i) + "\t" + DecThread.saver.typeCount.get(i));
 		}
 		analytics.printAnalytics();
 		Core.endDecoder(false);
@@ -399,6 +417,11 @@ public class ExampleDecoder{
 	}
 
 
+	
+	
+	
+	
+	
 
 
 }

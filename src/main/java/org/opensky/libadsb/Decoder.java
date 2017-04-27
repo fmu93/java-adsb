@@ -22,6 +22,8 @@ import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.opensky.libadsb.msgs.TCASResolutionAdvisoryMsg;
 import org.opensky.libadsb.msgs.VelocityOverGroundMsg;
 
+import output.Analytics;
+
 /**
  *  This file is part of org.opensky.libadsb.
  *
@@ -67,6 +69,7 @@ public class Decoder {
 
 			// what kind of extended squitter?
 			byte ftc = es1090.getFormatTypeCode();
+			Analytics.newPositionTypeCode(ftc);
 
 			if (ftc >= 1 && ftc <= 4) // identification message
 				return new IdentificationMsg(es1090);
