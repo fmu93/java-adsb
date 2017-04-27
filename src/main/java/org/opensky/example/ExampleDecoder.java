@@ -188,6 +188,7 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: "+status.getEmergencyStateText());
 				System.out.println("          Mode A code is "+status.getModeACode()[0]+
 						status.getModeACode()[1]+status.getModeACode()[2]+status.getModeACode()[3]);
+				saver.newDataEntry(timestamp, icao24, status.getEmergencyStateText(), "EVENT");
 				break;
 			case ADSB_AIRSPEED:
 				AirspeedHeadingMsg airspeed = (AirspeedHeadingMsg) msg;
@@ -233,8 +234,11 @@ public class ExampleDecoder{
 				TCASResolutionAdvisoryMsg tcas = (TCASResolutionAdvisoryMsg) msg;
 				System.out.println("["+icao24+"]: TCAS Resolution Advisory completed: "+tcas.hasRATerminated());
 				System.out.println("          Threat type is "+tcas.getThreatType());
-				if (tcas.getThreatType() == 1) // it's a icao24 address
+				saver.newDataEntry(timestamp, icao24, "TCAS RA completed", "EVENT");
+				if (tcas.getThreatType() == 1){ // it's a icao24 address
 					System.out.println("          Threat identity is 0x"+String.format("%06x", tcas.getThreatIdentity()));
+					saver.newDataEntry(timestamp, icao24, "TCAS RA completed. Thread identity: "+String.format("%06x", tcas.getThreatIdentity()), "EVENT");
+				}
 				break;
 			case ADSB_VELOCITY:
 				VelocityOverGroundMsg veloc = (VelocityOverGroundMsg) msg;

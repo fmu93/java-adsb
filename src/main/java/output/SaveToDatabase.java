@@ -41,7 +41,8 @@ public class SaveToDatabase {
 		"TAS5",
 		"MHEAD6",
 		"IAS6",
-		"MACH6");
+		"MACH6",
+		"EVENT");
 	private int linesToFlush = 100000;
 	public List<Integer> typeCount = new ArrayList<Integer>(Collections.nCopies(dataTypes.size(), 0));
 	private static int epochPrecision = 0;
