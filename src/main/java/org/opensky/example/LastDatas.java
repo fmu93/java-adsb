@@ -40,13 +40,22 @@ class LastData{
 	private double alt;
 	private double timeAlt;
 	private boolean hasAlt = false;
+	private double noADSBAlt;
+	private double timenoADSBAlt;
+	private boolean hasnoADSBAlt = false;
 	private double gs;
+	private double timeGs;
+	private boolean hasGs = false;
 	private double ttrack;
 	private double tas;
+	private double timeTas;
+	private boolean hasTas = false;
+	private double ias;
+	private double timeIas;
+	private boolean hasIas = false;
 	private double mhead;
 
 	public void newEntry(double epochTime, String data, int dataTypeIndex){
-
 		if (dataTypeIndex == 0)
 			call = data;
 		else if (dataTypeIndex == 3 && data != "gr"){
@@ -54,7 +63,71 @@ class LastData{
 			alt = Double.parseDouble(data)*30.48;
 			timeAlt = epochTime;
 			hasAlt = true;
+		}else if (dataTypeIndex == 10){
+			noADSBAlt = Double.parseDouble(data)*30.48;
+			timenoADSBAlt = epochTime;
+			hasnoADSBAlt = true;
+		}else if (dataTypeIndex == 17){
+			tas = Double.parseDouble(data);
+			timeTas = epochTime;
+			hasTas = true;
+		}else if (dataTypeIndex == 15){
+			gs = Double.parseDouble(data);
+			timeGs = epochTime;
+			hasGs = true;
+		}else if (dataTypeIndex == 19){
+			ias = Double.parseDouble(data);
+			timeIas = epochTime;
+			hasIas = true;
 		}
+	}
+	
+	public double getGs(){
+		return gs;
+	}
+	
+	public double getTimeGs(){
+		return timeGs;
+	}
+	
+	public boolean getHasGs(){
+		return hasGs;
+	}
+	
+	public double getTas(){
+		return tas;
+	}
+	
+	public double getTimeTas(){
+		return timeTas;
+	}
+	
+	public boolean getHasIas(){
+		return hasIas;
+	}
+	
+	public double getIas(){
+		return ias;
+	}
+	
+	public double getTimeIas(){
+		return timeIas;
+	}
+	
+	public boolean getHasTas(){
+		return hasTas;
+	}
+	
+	public double getNoADSBAlt() {
+		return noADSBAlt;
+	}
+
+	public double getTimenoADSBAlt() {
+		return timenoADSBAlt;
+	}
+
+	public boolean isHasnoADSBAlt() {
+		return hasnoADSBAlt;
 	}
 
 	public double getAlt() {

@@ -32,6 +32,7 @@ public class SaveToDatabase {
 		"TAS",
 		"MHEAD",
 		"SQUAWK",
+		"FL(modeS)",
 		"SELALT4",
 		"KOLLS4",
 		"ROLL5",

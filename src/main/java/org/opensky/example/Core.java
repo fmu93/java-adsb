@@ -59,7 +59,7 @@ public class Core{
 
 class DecThread extends Thread{
 	public static SaveToDatabase saver;
-	public static ExampleDecoder decoder;
+	public ExampleDecoder decoder;
 
 	public void run(){
 

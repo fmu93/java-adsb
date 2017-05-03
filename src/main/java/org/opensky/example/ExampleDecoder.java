@@ -74,6 +74,7 @@ public class ExampleDecoder{
 	private static SaveToDatabase saver;
 	private static Analytics analytics = new Analytics();
 	private boolean interrupted = false;
+	private double timestamp;
 
 
 	public ExampleDecoder() {
@@ -83,6 +84,7 @@ public class ExampleDecoder{
 
 	public void decodeMsg(double timestamp, String raw, String icao) throws Exception {
 		ModeSReply msg;
+		this.setTimestamp(timestamp);
 		try {
 			msg = Decoder.genericDecoder(raw);
 		} catch (BadFormatException e) {
@@ -94,7 +96,7 @@ public class ExampleDecoder{
 		}
 
 		String icao24 = tools.toHexString(msg.getIcao24());
-		
+
 		if (icao != null && !icao.toLowerCase().equals(icao24)) return;
 
 		// check for erroneous messages; some receivers set
@@ -188,7 +190,7 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: "+status.getEmergencyStateText());
 				System.out.println("          Mode A code is "+status.getModeACode()[0]+
 						status.getModeACode()[1]+status.getModeACode()[2]+status.getModeACode()[3]);
-				saver.newDataEntry(timestamp, icao24, status.getEmergencyStateText(), "EVENT");
+				saver.newDataEntry(timestamp, icao24, "ADS-B emergency: "+status.getEmergencyStateText(), "EVENT");
 				break;
 			case ADSB_AIRSPEED:
 				AirspeedHeadingMsg airspeed = (AirspeedHeadingMsg) msg;
@@ -234,10 +236,10 @@ public class ExampleDecoder{
 				TCASResolutionAdvisoryMsg tcas = (TCASResolutionAdvisoryMsg) msg;
 				System.out.println("["+icao24+"]: TCAS Resolution Advisory completed: "+tcas.hasRATerminated());
 				System.out.println("          Threat type is "+tcas.getThreatType());
-				saver.newDataEntry(timestamp, icao24, "TCAS RA completed", "EVENT");
+				saver.newDataEntry(timestamp, icao24, "TCAS RA completed: "+tcas.hasRATerminated(), "EVENT");
 				if (tcas.getThreatType() == 1){ // it's a icao24 address
 					System.out.println("          Threat identity is 0x"+String.format("%06x", tcas.getThreatIdentity()));
-					saver.newDataEntry(timestamp, icao24, "TCAS RA completed. Thread identity: "+String.format("%06x", tcas.getThreatIdentity()), "EVENT");
+					saver.newDataEntry(timestamp, icao24, "TCAS RA completed: "+tcas.hasRATerminated()+". Thread identity: "+String.format("%06x", tcas.getThreatIdentity()), "EVENT");
 				}
 				break;
 			case ADSB_VELOCITY:
@@ -273,10 +275,15 @@ public class ExampleDecoder{
 						(acas.hasOperatingACAS() ? "operating." : "not operating."));
 				System.out.println("          A/C is "+(acas.isAirborne() ? "airborne" : "on the ground")+
 						" and sensitivity level is "+acas.getSensitivityLevel());
+				if (acas.getAltitude() != null)
+					saver.newDataEntry(timestamp, icao24, String.format("%.2f", acas.getAltitude()/30.48), "FL(modeS)");
+
 				break;
 			case ALTITUDE_REPLY:
 				AltitudeReply alti = (AltitudeReply)msg;
 				System.out.println("["+icao24+"]: Short altitude reply: "+alti.getAltitude()+"m");
+				if (alti.getAltitude() != null)
+					saver.newDataEntry(timestamp, icao24, String.format("%.2f", alti.getAltitude()/30.48), "FL(modeS)");
 				break;
 			case IDENTIFY_REPLY:
 				IdentifyReply identify = (IdentifyReply)msg;
@@ -297,6 +304,8 @@ public class ExampleDecoder{
 				System.out.println("          RAC is "+(long_acas.hasValidRAC() ? "valid" : "not valid")+
 						" and is "+long_acas.getResolutionAdvisoryComplement()+" (MTE="+long_acas.hasMultipleThreats()+")");
 				System.out.println("          Maximum airspeed is "+long_acas.getMaximumAirspeed()+"m/s.");
+				if (long_acas.getAltitude() != null)
+					saver.newDataEntry(timestamp, icao24, String.format("%.2f", long_acas.getAltitude()/30.48), "FL(modeS)");
 				break;
 			case MILITARY_EXTENDED_SQUITTER:
 				MilitaryExtendedSquitter mil = (MilitaryExtendedSquitter)msg;
@@ -308,13 +317,15 @@ public class ExampleDecoder{
 				System.out.println("["+icao24+"]: Long altitude reply: "+commBaltitude.getAltitude()+"m");
 				System.out.println("          raw hexx: "+raw);
 				System.out.println("          Comm-B message:"+commBaltitude.getMessage());
-				
+				if (commBaltitude.getAltitude() != null)
+					saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBaltitude.getAltitude()/30.48), "FL(modeS)");
+
 				if (commBaltitude.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBaltitude.commBMessage.kollsman);
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.kollsman), "KOLLS4");
 					saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.select_alt_MCP), "SELALT4");
 				}
-				
+
 				else if (commBaltitude.commBMessage.hasBDS50){
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.rollAngle), "ROLL5");
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.trueTrackAngle), "TTRACK5");
@@ -322,13 +333,13 @@ public class ExampleDecoder{
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.trackAngleRate), "TURNR5");
 					saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.trueAirspeed), "TAS5");
 				}
-				
+
 				else if (commBaltitude.commBMessage.hasBDS60){
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.magneticHeading), "MHEAD6");
 					saver.newDataEntry(timestamp, icao24, String.format("%d", commBaltitude.commBMessage.indicatedAirspeed), "IAS6");
 					saver.newDataEntry(timestamp, icao24, String.format("%.3f", commBaltitude.commBMessage.mach), "MACH6");
 				}
-				
+
 				break;
 			case COMM_B_IDENTIFY_REPLY:
 				CommBIdentifyReply commBidentify = (CommBIdentifyReply)msg;
@@ -337,13 +348,13 @@ public class ExampleDecoder{
 				System.out.println("          Comm-B message:"+commBidentify.getMessage());
 
 				saver.newDataEntry(timestamp, icao24, commBidentify.getIdentity(), "SQUAWK");
-				
+
 				if (commBidentify.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBidentify.commBMessage.kollsman);
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.kollsman), "KOLLS4");
 					saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.select_alt_MCP), "SELALT4");
 				}
-				
+
 				else if (commBidentify.commBMessage.hasBDS50){
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.rollAngle), "ROLL5");
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.trueTrackAngle), "TTRACK5");
@@ -351,13 +362,13 @@ public class ExampleDecoder{
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.trackAngleRate), "TURNR5");
 					saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.trueAirspeed), "TAS5");
 				}
-				
+
 				else if (commBidentify.commBMessage.hasBDS60){
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.magneticHeading), "MHEAD6");
 					saver.newDataEntry(timestamp, icao24, String.format("%d", commBidentify.commBMessage.indicatedAirspeed), "IAS6");
 					saver.newDataEntry(timestamp, icao24, String.format("%.3f", commBidentify.commBMessage.mach), "MACH6");
 				}
-				
+
 				break;
 			case COMM_D_ELM:
 				CommDExtendedLengthMsg commDELM = (CommDExtendedLengthMsg)msg;
@@ -416,17 +427,25 @@ public class ExampleDecoder{
 		analytics.printAnalytics();
 		Core.endDecoder(false);
 	}
-	
+
 	public void setInterrupted(boolean interrupted){
 		this.interrupted = interrupted;
 	}
 
+	public double getTimestamp() {
+		return timestamp;
+	}
 
-	
-	
-	
-	
-	
+	public void setTimestamp(double timestamp) {
+		this.timestamp = timestamp;
+	}
+
+
+
+
+
+
+
 
 
 }
