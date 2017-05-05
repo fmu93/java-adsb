@@ -41,7 +41,10 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	private byte sil; // surveillance integrity level
 	private boolean nic_trk_hdg; // NIC baro for airborne status, heading/ground track info else
 	private boolean hrd; // heading info is based on true north (0) or magnetic north (1)
-	
+
+	/** protected no-arg constructor e.g. for serialization with Kryo **/
+	protected OperationalStatusMsg() { }
+
 	/**
 	 * @param raw_message The full Mode S message in hex representation
 	 * @throws BadFormatException if message has the wrong typecode
@@ -343,9 +346,16 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 	}
 
 	/**
-	 * @return the navigation accuracy for position messages in meters and -1 for unknown
+	 * @return the navigation accuracy for position messages; rather use getPositionUncertainty
 	 */
-	public double getPositionNAC() {
+	public byte getPositionNAC() {
+		return nac_pos;
+	}
+
+	/**
+	 * @return the estimated position uncertainty according to the position NAC in meters (-1 for unknown)
+	 */
+	public double getPositionUncertainty() {
 		switch (nac_pos) {
 		case 1: return 18.52;
 		case 2: return 7.408;
