@@ -23,6 +23,9 @@ public class Controller {
 	@FXML    private TextField txtPrecis;
 	@FXML	 private TextField txtRange;
 	@FXML	 private TextField txtLatLon;
+	@FXML	 private TextField txtStartTime;
+	@FXML	 private TextField txtEndTime;
+	@FXML	 private TextField txtMinReason;
 	@FXML	 private ProgressIndicator progInd;
 	@FXML	 private Button btnStop;
 	@FXML	 private TextArea txtConsole;
@@ -35,11 +38,27 @@ public class Controller {
 
 		setPrecis();
 		setReceiverReason();
-		if (txtICAO.getText().isEmpty()){
-
-		}else{
+		if (!txtICAO.getText().isEmpty())
 			Core.icaoFilter = txtICAO.getText();
+		if (!txtStartTime.getText().isEmpty()){
+			try{
+				Core.epochStart = Long.parseLong(txtStartTime.getText());
+			}catch(Exception e){
+			}
 		}
+		if (!txtEndTime.getText().isEmpty()){
+			try{
+				Core.epochEnd = Long.parseLong(txtEndTime.getText());
+			}catch(Exception e){
+			}
+		}
+		if (!txtMinReason.getText().isEmpty()){
+			try{
+				Core.min_num_reasonable = Integer.parseInt(txtMinReason.getText());
+			}catch(Exception e){
+			}
+		}
+
 		Core.runDecoder();
 	}
 

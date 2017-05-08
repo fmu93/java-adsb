@@ -387,6 +387,8 @@ public class ExampleDecoder{
 
 	public void runDecoder(String icaoFilter) throws Exception{
 		String icao = null; // 44a826
+		long epochStart = 0;
+		long epochEnd = 0;
 		Core.printConsole(Core.inputHexx.getAbsolutePath().toString());
 		if (icaoFilter.length() > 0) {
 			icao = icaoFilter;
@@ -397,6 +399,10 @@ public class ExampleDecoder{
 			receiverPos = new Position(Core.receiverReason.get(1), Core.receiverReason.get(0), 0.0);
 			dec.setMaxRange((int) Math.abs(Core.receiverReason.get(2)*1000));
 		}
+		if (Core.epochStart != 0)
+			epochStart = Core.epochStart;
+		if (Core.epochEnd != 0)
+			epochEnd = Core.epochEnd;
 		boolean firstEpoch = true;
 
 		// iterate over STDIN
@@ -407,6 +413,10 @@ public class ExampleDecoder{
 			String[] values = sc.nextLine().split("  *");
 			if (values.length == 2){
 				double timeStamp = Double.parseDouble(values[0]);
+				if (epochStart>timeStamp)
+					continue;
+				if (epochEnd != 0 && epochEnd<timeStamp)
+					break;
 				if (firstEpoch){
 					saver.setWriter(timeStamp);
 					firstEpoch = false;

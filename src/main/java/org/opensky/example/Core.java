@@ -15,7 +15,10 @@ public class Core{
 	public static File inputHexx;
 	public static List<Double> receiverReason; // lat, lon, range (km)
 	public static String icaoFilter = "";
+	public static long epochStart = 0;
+	public static long epochEnd = 0;
 	public static int epochPrecision = 0;
+	public static int min_num_reasonable = 4;
 
 	public static void main(String[] args){
 

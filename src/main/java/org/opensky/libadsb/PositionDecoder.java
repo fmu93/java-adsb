@@ -2,6 +2,7 @@ package org.opensky.libadsb;
 
 import static java.lang.Math.*;
 
+import org.opensky.example.Core;
 import org.opensky.libadsb.exceptions.BadFormatException;
 import org.opensky.libadsb.exceptions.MissingInformationException;
 import org.opensky.libadsb.exceptions.PositionStraddleError;
@@ -9,6 +10,8 @@ import org.opensky.libadsb.msgs.AirbornePositionMsg;
 import org.opensky.libadsb.msgs.SurfacePositionMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import output.Analytics;
 
 /**
  * This class is a stateful position decoder for one airplane.
@@ -71,13 +74,6 @@ public class PositionDecoder {
 	public static boolean withinThreshold (double timeDifference, double distance, boolean surface) {
 		double x = abs(timeDifference);
 		double d = abs(distance);
-		double speed = d/x;
-		if (speed>333){
-			System.out.println(speed);
-		}
-
-		//		if (d/x >= (surface?51.44:514.4)*2.5)
-		//			System.err.format("%.2f/%.2f=%.2f\n", d, x, d/x);
 
 		// may be due to Internet jitter; distance is realistic
 		if (x < 0.7 && d < 500) return true; 
@@ -169,11 +165,6 @@ public class PositionDecoder {
 
 		boolean reasonable = true; // be positive :-)
 		double distance_threshold = 10; // According to ICAO9871 A.2.7.2
-		if (last_pos != null && global)
-			speed = abs(global_pos.distanceTo(last_pos))/abs(time - last_time); // get speed from global if possible
-		else if (last_pos != null && local)
-			speed = abs(local_pos.distanceTo(last_pos))/abs(time - last_time);
-
 
 		// check distance between global and local position if possible. 89613b, 3420ca, 3964ef
 		if (local && global && global_pos.distanceTo(local_pos) > distance_threshold) {  // should be almost equal
@@ -241,20 +232,24 @@ public class PositionDecoder {
 		}
 
 		// check if it's realistic that the plane accelerated this speed
-		if (global && last_pos != null && num_reasonable>3 && global_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-			double acceleration = abs(speed-last_speed)/abs(time-last_time);
-			if (acceleration > 20){
-				reasonable = false;
+		if (last_pos != null && global){ // get speed from global if possible
+			speed = abs(global_pos.distanceTo(last_pos)/time - last_time);
+			if (num_reasonable>2 && global_pos.distanceTo(last_pos) > 300 && abs(time-last_time) < 20){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 5){
+					reasonable = false;
+				}
 			}
 		}
-
-		if (local && last_pos != null && num_reasonable>3 && local_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-			double acceleration = abs(speed-last_speed)/abs(time-last_time);
-			if (acceleration > 20){
-				reasonable = false;
+		else if (last_pos != null && local){
+			speed = abs(local_pos.distanceTo(last_pos)/time - last_time);
+			if (num_reasonable>2 && local_pos.distanceTo(last_pos) > 300 && abs(time-last_time) < 20){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 5){
+					reasonable = false;
+				}
 			}
 		}
-
 
 		// store latest position message
 		if (msg.isOddFormat() && msg.hasPosition()) {
@@ -277,18 +272,28 @@ public class PositionDecoder {
 		}
 
 		// TODO create last_speed and last_heading for a reasonableness test on acceleration and angular rates
+		Analytics.newCountPos();
 		if (!reasonable){
 			num_reasonable = 0;
 		}else{ // at least n good msgs before
+			Analytics.newCountValidPos();
+			num_reasonable++;
 			last_pos = ret;
 			last_time = time;
-			if (last_speed == 0.0)
+
+			if (num_reasonable == 1)
+				last_speed = 0;
+			else if (num_reasonable == 2)
 				last_speed = speed;
+			else if (2 < num_reasonable && num_reasonable < 6)
+				last_speed = last_speed*(num_reasonable-2)/(num_reasonable-1) + speed/(num_reasonable-1);
 			else
-				last_speed = (last_speed*0.8 + speed*0.2); // weighted average of speed
-			if (num_reasonable<3)
+				last_speed = last_speed*0.8 + speed*0.2; // weighted average of speed
+
+			if (num_reasonable<Core.min_num_reasonable)
 				ret = null;
-			num_reasonable++;
+			else
+				Analytics.newCountUsedPos();
 		}
 		return ret;
 	}
@@ -398,10 +403,6 @@ public class PositionDecoder {
 
 		boolean reasonable = true; // be positive :-)
 		double distance_threshold = 5; // // According to ICAO9871 A.2.7.2
-		if (last_pos != null && global)
-			speed = abs(global_pos.distanceTo(last_pos))/abs(time - last_time); // get speed from global if possible
-		else if (last_pos != null && local)
-			speed = abs(local_pos.distanceTo(last_pos))/abs(time - last_time);
 
 		// check distance between global and local position if possible
 		if (local && global && global_pos.distanceTo(local_pos) > distance_threshold) {  // should be almost equal
@@ -468,17 +469,22 @@ public class PositionDecoder {
 		}
 
 		// check if it's realistic that the plane accelerated this speed
-		if (global && last_pos != null && num_reasonable>3 && global_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-			double acceleration = abs(speed-last_speed)/abs(time-last_time);
-			if (acceleration > 10){
-				reasonable = false;
+		if (last_pos != null && global){ // get speed from global if possible
+			speed = abs(global_pos.distanceTo(last_pos))/abs(time - last_time);
+			if (num_reasonable>2 && global_pos.distanceTo(last_pos) > 500 && abs(time-last_time) < 10){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 20){
+					reasonable = false;
+				}
 			}
 		}
-
-		if (local && last_pos != null && num_reasonable>3 && local_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-			double acceleration = abs(speed-last_speed)/abs(time-last_time);
-			if (acceleration > 10){
-				reasonable = false;
+		else if (last_pos != null && local){
+			speed = abs(local_pos.distanceTo(last_pos))/abs(time - last_time);
+			if (num_reasonable>2 && local_pos.distanceTo(last_pos) > 500 && abs(time-last_time) < 10){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 20){
+					reasonable = false;
+				}
 			}
 		}
 
@@ -506,15 +512,21 @@ public class PositionDecoder {
 		if (!reasonable){
 			num_reasonable = 0;
 		}else{ // at least n good msgs before
+			num_reasonable++;
 			last_pos = ret;
 			last_time = time;
-			if (last_speed == 0.0)
+
+			if (num_reasonable == 1)
+				last_speed = 0;
+			else if (num_reasonable == 2)
 				last_speed = speed;
+			else if (2 < num_reasonable && num_reasonable < 6)
+				last_speed = last_speed*(num_reasonable-2)/(num_reasonable-1) + speed/(num_reasonable-1);
 			else
-				last_speed = (last_speed*0.8 + speed*0.2); // weighted average of speed
-			if (num_reasonable<2)
+				last_speed = last_speed*0.8 + speed*0.2; // weighted average of speed
+
+			if (num_reasonable<Core.min_num_reasonable)
 				ret = null;
-			num_reasonable++;
 		}
 		return ret;
 	}

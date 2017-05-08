@@ -31,7 +31,7 @@
             <GridPane prefHeight="56.0" prefWidth="500.0">
               <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="63.0" minWidth="10.0" prefWidth="10.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="172.0" minWidth="100.0" prefWidth="170.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="100.0" prefWidth="180.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="10.0" />
               </columnConstraints>
@@ -39,6 +39,7 @@
                   <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -49,21 +50,21 @@
                   <Button fx:id="btSelHexx" maxWidth="300.0" mnemonicParsing="false" onAction="#selHexx" prefHeight="25.0" prefWidth="200.0" text="Select hexx" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <TextField fx:id="txtICAO" maxWidth="-Infinity" prefHeight="25.0" prefWidth="90.0" promptText="filter for ICAO" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="1" />
                   <Label text="Timestamp decimal precision:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <TextField fx:id="txtPrecis" maxWidth="-Infinity" onAction="#setPrecis" prefHeight="25.0" prefWidth="60.0" promptText="0" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="2" />
-                  <Label contentDisplay="CENTER" text="For CPR reasonableness test:" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-                  <Label text="Receiver Lat, Lon:" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <TextField fx:id="txtLatLon" maxWidth="-Infinity" promptText="Lat, Lon" text="40.45, -3.57" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="4" />
-                  <Label text="Receiver range (km):" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                  <TextField fx:id="txtRange" maxWidth="-Infinity" promptText="km" text="700" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="5" GridPane.vgrow="NEVER" />
-                  <Button fx:id="btDecode" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#runDecode" prefHeight="31.0" prefWidth="145.0" text="Decode" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                  <TextField fx:id="txtPrecis" maxWidth="-Infinity" onAction="#setPrecis" prefHeight="25.0" prefWidth="40.0" promptText="0" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="2" />
+                  <Label contentDisplay="CENTER" text="Min reasonable CPR pos in row:" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="4" />
+                  <Label text="Receiver Lat, Lon:" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <TextField fx:id="txtLatLon" maxWidth="-Infinity" prefHeight="25.0" prefWidth="100.0" promptText="Lat, Lon" text="40.45, -3.57" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="5" />
+                  <Label text="Receiver range (km):" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                  <TextField fx:id="txtRange" maxWidth="-Infinity" prefHeight="25.0" prefWidth="60.0" promptText="km" text="700" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="6" GridPane.vgrow="NEVER" />
+                  <Button fx:id="btDecode" alignment="CENTER" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onAction="#runDecode" prefHeight="31.0" prefWidth="145.0" text="Decode" GridPane.columnIndex="1" GridPane.rowIndex="7">
                      <font>
                         <Font name="System Bold" size="15.0" />
                      </font>
                   </Button>
-                  <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="6">
+                  <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="7">
                      <children>
-                        <Button fx:id="btnStop" alignment="CENTER" contentDisplay="CENTER" disable="true" layoutX="59.0" layoutY="15.0" mnemonicParsing="false" onAction="#stopDecode" prefHeight="28.0" prefWidth="53.0" text="Stop" />
-                        <ProgressIndicator fx:id="progInd" layoutY="15.0" prefHeight="36.0" prefWidth="51.0" progress="0.0" />
+                        <Button fx:id="btnStop" alignment="CENTER" contentDisplay="CENTER" disable="true" layoutX="56.0" layoutY="7.0" mnemonicParsing="false" onAction="#stopDecode" prefHeight="28.0" prefWidth="53.0" text="Stop" />
+                        <ProgressIndicator fx:id="progInd" layoutY="3.0" prefHeight="36.0" prefWidth="51.0" progress="0.0" />
                      </children>
                   </Pane>
                   <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2">
@@ -75,6 +76,9 @@
                         </ImageView>
                      </children>
                   </Pane>
+                  <TextField fx:id="txtStartTime" maxWidth="-Infinity" prefHeight="25.0" prefWidth="100.0" promptText="Start time" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="3" />
+                  <TextField fx:id="txtEndTime" maxWidth="-Infinity" prefHeight="25.0" prefWidth="100.0" promptText="End time" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="3" />
+                  <TextField fx:id="txtMinReason" maxWidth="-Infinity" prefHeight="25.0" prefWidth="40.0" text="4" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.hgrow="NEVER" GridPane.rowIndex="4" />
                </children>
             </GridPane>
             <Separator orientation="VERTICAL" prefHeight="200.0" />

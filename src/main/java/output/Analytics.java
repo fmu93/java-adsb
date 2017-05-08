@@ -31,6 +31,9 @@ public class Analytics {
 	private static int typeOther = 0;
 	private static int typeStatus = 0;
 	private static int typeEmerg = 0;
+	private static double countPos = 0;
+	private static int countValidPos = 0;
+	private static int countUsedPos = 0;
 
 
 	public Analytics(){
@@ -48,6 +51,9 @@ public class Analytics {
 		typeOther = 0;
 		typeStatus = 0;
 		typeEmerg = 0;
+		countPos = 0;
+		countValidPos = 0;
+		countUsedPos = 0;
 	}
 
 	public void newAlt(String icao, Double alt){
@@ -74,6 +80,19 @@ public class Analytics {
 			}
 		}
 	}
+	
+	public static void newCountPos(){
+		countPos++;
+	}
+	
+	public static void newCountValidPos(){
+		countValidPos++;
+	}
+	
+	public static void newCountUsedPos(){
+		countUsedPos++;
+	}
+	
 
 	public void newAirbone(String icao){
 		if (!icaoAirborneCount.contains(icao)){
@@ -172,6 +191,8 @@ public class Analytics {
 		Core.printConsole("Status:\t" + String.format("%.2f", typeStatus/typeAll*100) + " %");
 		Core.printConsole("Other (reserved, test...):\t" + String.format("%.2f", typeOther/typeAll*100) + " %");
 
+		Core.printConsole("\nReasonable positions:\t" + String.format("%.2f", countValidPos/countPos*100) + " %");
+		Core.printConsole("Used positions:\t" + String.format("%.2f", countUsedPos/countPos*100) + " %");
 	}
 
 

@@ -40,6 +40,9 @@ class LastData{
 	private double alt;
 	private double timeAlt;
 	private boolean hasAlt = false;
+	private double vrate;
+	private double timeVrate;
+	private boolean hasVrate = false;
 	private double noADSBAlt;
 	private double timenoADSBAlt;
 	private boolean hasnoADSBAlt = false;
@@ -47,6 +50,8 @@ class LastData{
 	private double timeGs;
 	private boolean hasGs = false;
 	private double ttrack;
+	private double timeTtrack;
+	private boolean hasTtrack = false;
 	private double tas;
 	private double timeTas;
 	private boolean hasTas = false;
@@ -63,6 +68,14 @@ class LastData{
 			alt = Double.parseDouble(data)*30.48;
 			timeAlt = epochTime;
 			hasAlt = true;
+		}else if (dataTypeIndex == 4){
+			vrate = Double.parseDouble(data);
+			timeVrate = epochTime;
+			hasVrate = true;
+		}else if (dataTypeIndex == 6){
+			ttrack = Double.parseDouble(data);
+			timeTtrack = epochTime;
+			hasTtrack = true;
 		}else if (dataTypeIndex == 10){
 			noADSBAlt = Double.parseDouble(data)*30.48;
 			timenoADSBAlt = epochTime;
@@ -80,6 +93,30 @@ class LastData{
 			timeIas = epochTime;
 			hasIas = true;
 		}
+	}
+	
+	public double getVrate(){
+		return vrate;
+	}
+	
+	public double getTimeVrate(){
+		return timeVrate;
+	}
+	
+	public boolean getHasVrate(){
+		return hasVrate;
+	}
+	
+	public double getTtrack(){
+		return ttrack;
+	}
+	
+	public double getTimeTtrack(){
+		return timeTtrack;
+	}
+	
+	public boolean getHasTtrack(){
+		return hasTtrack;
 	}
 	
 	public double getGs(){

@@ -95,12 +95,19 @@ public class CommBMessage {
 		trueAirspeed = ((short) ((message[5]<<8&0xFF00 | message[6]&0xFF)&0x3FF)) * 2; // knots
 
 		// here reasonableness test 
+		// based on ADS-B calculated ttrack with 10s time threshold and +/- 20 deg difference
+		if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).getHasTtrack() &&
+				Math.abs(epochNow - LastDatas.getAircraftData(icao).getTimeTtrack())<10 &&
+				Math.abs(trueTrackAngle-LastDatas.getAircraftData(icao).getTtrack())>20){
+			valid = false;
+		}
+		// computed roll angle and decoded roll angle +/- 5 deg difference
 		double compRollAngle = Math.toDegrees(Math.atan(trueAirspeed*1.68781*trackAngleRate*Math.PI/180/32)); // g = 32 ft/s2
 		if (Math.abs(compRollAngle - rollAngle) > 5 ||  trueAirspeed > 1000 || gorundSpeed > 1000)
 			valid = false;
-		if (valid){
+
+		if (valid)
 			hasBDS50 = true;
-		}
 	}
 
 	private void decodeBDS60(){
@@ -118,24 +125,32 @@ public class CommBMessage {
 		inertialVertVel = (inertialVertVelSign ? inertialVertVel - 512 : inertialVertVel) * 32;
 
 		// here reasonableness tests
-		
+
 		// check decoded data itself
 		if (0>magneticHeading && magneticHeading>360 || Math.abs(barometricAltRate)>10000 || Math.abs(inertialVertVel)>10000
 				|| Math.abs(barometricAltRate - inertialVertVel) > 500){
 			valid = false;
 		}
-		// check change on IAS from previous data. Threshold on 40 knots/s or 20 m/s^2 TODO
-		if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).getHasIas() && 
-				(indicatedAirspeed-LastDatas.getAircraftData(icao).getIas())/(epochNow-LastDatas.getAircraftData(icao).getTimeIas())>40){
+		// vrate from ADS-B. 10s threshold, +/- 500 ft/s difference.
+		if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).getHasVrate() &&
+				Math.abs(epochNow - LastDatas.getAircraftData(icao).getTimeVrate())<10 &&
+				(Math.abs(barometricAltRate-LastDatas.getAircraftData(icao).getVrate())>500 ||
+						Math.abs(inertialVertVel-LastDatas.getAircraftData(icao).getVrate())>500)){
+			valid = false;
+		}
+		// check change on IAS from previous data (20s threshold). Threshold on 40 knots/s or 20 m/s^2 TODO
+		if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).getHasIas() &&
+				Math.abs(epochNow - LastDatas.getAircraftData(icao).getTimeIas())<20 &&
+				Math.abs((indicatedAirspeed-LastDatas.getAircraftData(icao).getIas())/(epochNow-LastDatas.getAircraftData(icao).getTimeIas()))>40){
 			valid = false;
 		}
 		// flight mechanics
 		boolean hasLastAlt = false;
 		double lastAlt = 0;
-		if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).hasAlt() && Math.abs(epochNow - LastDatas.getAircraftData(icao).getTimeAlt()) < 20){
+		if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).hasAlt() && Math.abs(epochNow-LastDatas.getAircraftData(icao).getTimeAlt())<20){
 			lastAlt = LastDatas.getAircraftData(icao).getAlt(); // meters 
 			hasLastAlt = true;
-		}else if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).isHasnoADSBAlt() && Math.abs(epochNow - LastDatas.getAircraftData(icao).getTimenoADSBAlt()) < 20){
+		}else if (LastDatas.hasLastData(icao) && LastDatas.getAircraftData(icao).isHasnoADSBAlt() && Math.abs(epochNow-LastDatas.getAircraftData(icao).getTimenoADSBAlt())<20){
 			lastAlt = LastDatas.getAircraftData(icao).getAlt(); // meters 
 			hasLastAlt = true;
 		}
@@ -167,7 +182,6 @@ public class CommBMessage {
 			if (Math.abs(m - mach) > 0.15)
 				valid = false;
 		}
-		
 		if (valid)
 			hasBDS60 = true;
 	}
