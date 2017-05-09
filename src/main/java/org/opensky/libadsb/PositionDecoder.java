@@ -296,6 +296,7 @@ public class PositionDecoder {
 		Position ret = decodePosition(time, msg);
 		if (ret != null && receiver != null && !withinReasonableRange(receiver, ret)) {
 			ret.setReasonable(false);
+			last_pos = null;
 			num_reasonable = 0;
 		}
 		return ret;
