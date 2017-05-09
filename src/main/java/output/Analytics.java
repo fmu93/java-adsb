@@ -17,7 +17,7 @@ public class Analytics {
 	private static List<String> icaoSurfCount = new ArrayList<String>();
 	private static List<String> icaoAnyCount = new ArrayList<String>();
 	private static List<String> icaoBothCount = new ArrayList<String>();
-	private static List<Integer> bdsCount = new ArrayList<Integer>(Collections.nCopies(3, 0));
+	private static List<Integer> bdsCount = new ArrayList<Integer>(Collections.nCopies(6, 0));
 	private static List<Double> kollsmanList = new ArrayList<Double>();
 	private static HashMap<String, Integer> last_alt = new HashMap<String, Integer>();
 	private static HashMap<String, List<String>> last_pos = new HashMap<String, List<String>>();
@@ -41,7 +41,7 @@ public class Analytics {
 		for (int i = 0; i<25 ; i++){
 			histoDFicao.add(new ArrayList<String>());
 		}
-		bdsCount = new ArrayList<Integer>(Collections.nCopies(3, 0));
+		bdsCount = new ArrayList<Integer>(Collections.nCopies(6, 0));
 		typeAll = 0;
 		typeIdent = 0;
 		typeSurf = 0;
@@ -59,7 +59,7 @@ public class Analytics {
 	public void newAlt(String icao, Double alt){
 		last_alt.put(icao, (int) Math.round(alt));
 	}
-	
+
 	/**
 	 * @param icao
 	 * @param Long
@@ -80,19 +80,19 @@ public class Analytics {
 			}
 		}
 	}
-	
+
 	public static void newCountPos(){
 		countPos++;
 	}
-	
+
 	public static void newCountValidPos(){
 		countValidPos++;
 	}
-	
+
 	public static void newCountUsedPos(){
 		countUsedPos++;
 	}
-	
+
 
 	public void newAirbone(String icao){
 		if (!icaoAirborneCount.contains(icao)){
@@ -118,12 +118,14 @@ public class Analytics {
 
 	public static void newBDS(List<Byte> bds){
 		for (byte i : bds){
-			if (i == 0x40)
-				bdsCount.set(0, bdsCount.get(0) + 1);
-			else if (i == 0x50)
+			if (i == 0x20)
 				bdsCount.set(1, bdsCount.get(1) + 1);
+			else if (i == 0x40)
+				bdsCount.set(3, bdsCount.get(3) + 1);
+			else if (i == 0x50)
+				bdsCount.set(4, bdsCount.get(4) + 1);
 			else if (i == 0x60)
-				bdsCount.set(2, bdsCount.get(2) + 1);
+				bdsCount.set(5, bdsCount.get(5) + 1);
 		}
 	}
 
@@ -134,7 +136,7 @@ public class Analytics {
 			kollsAlt.add(object);
 		}
 	}
-	
+
 	public static void newPositionTypeCode(int typeCode){
 		typeAll++;
 		if (typeCode>0 && typeCode<5){
@@ -157,7 +159,7 @@ public class Analytics {
 	}
 
 	public void printAnalytics(){
-		
+
 		Core.printConsole("\nTotal icao count:\t" + icaoList.size());
 		Core.printConsole("\nAmount of identified aircraft that sent a DF at least once:");
 		for (int i = 0; i<histoDFicao.size(); i++){
@@ -165,7 +167,7 @@ public class Analytics {
 				Core.printConsole("DF" + i + "\t" + String.format("%.2f", (double) histoDFicao.get(i).size()/icaoList.size()*100) + " %"); //);
 			}
 		}
-		
+
 		Core.printConsole("Count of icao with any position:\t" + icaoAnyCount.size());
 		Core.printConsole("Count of icao with airborne position:\t" + icaoAirborneCount.size());
 		Core.printConsole("Count of icao with surface position:\t" + icaoSurfCount.size());
@@ -178,9 +180,9 @@ public class Analytics {
 
 		Core.printConsole("\nValidated BDS's:");
 		for (int i = 0; i<bdsCount.size(); i++){
-			Core.printConsole("BDS" + (i+4) + "0\t" + bdsCount.get(i));
+			Core.printConsole("BDS" + (i+1) + "0\t" + bdsCount.get(i));
 		}
-		
+
 		Core.printConsole("\nCount of format ADS-B format type codes:");
 		Core.printConsole("Identification:\t" + String.format("%.2f", typeIdent/typeAll*100) + " %");
 		Core.printConsole("Surface:\t" + String.format("%.2f", typeSurf/typeAll*100) + " %");
