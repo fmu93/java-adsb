@@ -17,10 +17,13 @@ public class CommBMessage {
 	private List <Integer> bds60StatusBits = Arrays.asList(1, 13, 24, 35, 46);
 	private String icao;
 
+	boolean hasBDS20 = false;
 	boolean hasBDS40 = false;
 	boolean hasBDS50 = false;
 	boolean hasBDS60 = false;
 
+	byte[] identity;
+	char[] charIdentity;
 	double kollsman;
 	int select_alt_FMS;
 	int select_alt_MCP;
@@ -42,6 +45,8 @@ public class CommBMessage {
 		checkStatusBits();
 		if (bds.size() > 0){
 			validateBDS();
+			if (hasBDS20)
+				Analytics.newBDS((byte) 0x20);
 			if (hasBDS40)
 				Analytics.newBDS((byte) 0x40);
 			if (hasBDS50)
@@ -53,7 +58,8 @@ public class CommBMessage {
 	}
 
 	private void checkStatusBits(){
-
+		if (message[0] == 0x20)
+			bds.add((byte) 0x20);		
 		if (hasStatusBits(bds40StatusBits) && hasReservedBits(40, 47) && hasReservedBits(52, 53)) // Selected vertical intention
 			bds.add((byte) 0x40);
 		if (hasStatusBits(bds50StatusBits)) // Track and turn report
@@ -64,6 +70,8 @@ public class CommBMessage {
 
 	private void validateBDS(){
 		for (byte i : bds){
+			if (i == 0x20)
+				decodeBDS20();
 			if (i == 0x40)
 				decodeBDS40();
 			if (i == 0x50)
@@ -184,6 +192,52 @@ public class CommBMessage {
 		}
 		if (valid)
 			hasBDS60 = true;
+	}
+	
+	private void decodeBDS20(){
+		identity = new byte[8];
+		int byte_off, bit_off;
+		for (int i=8; i>=1; i--) {
+			// calculate offsets
+			byte_off = (i*6)/8; bit_off = (i*6)%8;
+			
+			// char aligned with byte?
+			if (bit_off == 0) identity[i-1] = (byte) (message[byte_off]&0x3F);
+			else {
+				++byte_off;
+				identity[i-1] = (byte) (message[byte_off]>>>(8-bit_off)&(0x3F>>>(6-bit_off)));
+				// should we add bits from the next byte?
+				if (bit_off < 6) identity[i-1] |= message[byte_off-1]<<bit_off&0x3F;
+			}
+		}
+		charIdentity = mapChar(identity);
+		
+		hasBDS20 = true;
+	}
+	
+	/**
+	 * Maps ADS-B encoded to readable characters
+	 * @param digit encoded digit
+	 * @return readable character
+	 */
+	private static char mapChar (byte digit) {
+		if (digit>0 && digit<27) return (char) ('A'+digit-1);
+		else if (digit>47 && digit<58) return (char) ('0'+digit-48);
+		else return ' ';
+	}
+	
+	/**
+	 * Maps ADS-B encoded to readable characters
+	 * @param digits array of encoded digits
+	 * @return array of decoded characters
+	 */
+	private static char[] mapChar (byte[] digits) {
+		char[] result = new char[digits.length];
+		
+		for (int i=0; i<digits.length; i++)
+			result[i] = mapChar(digits[i]);
+		
+		return result;
 	}
 
 

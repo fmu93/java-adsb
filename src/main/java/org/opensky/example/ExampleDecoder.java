@@ -320,6 +320,8 @@ public class ExampleDecoder{
 				if (commBaltitude.getAltitude() != null)
 					saver.newDataEntry(timestamp, icao24, String.format("%.2f", commBaltitude.getAltitude()/30.48), "FL(modeS)");
 
+				if (commBaltitude.commBMessage.hasBDS20)
+					saver.newDataEntry(timestamp, icao24, new String(commBaltitude.commBMessage.charIdentity), "CALL");
 				if (commBaltitude.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBaltitude.commBMessage.kollsman);
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBaltitude.commBMessage.kollsman), "KOLLS4");
@@ -349,6 +351,8 @@ public class ExampleDecoder{
 
 				saver.newDataEntry(timestamp, icao24, commBidentify.getIdentity(), "SQUAWK");
 
+				if (commBidentify.commBMessage.hasBDS20)
+					saver.newDataEntry(timestamp, icao24, new String(commBidentify.commBMessage.charIdentity), "CALL");
 				if (commBidentify.commBMessage.hasBDS40){
 					analytics.newKollsman(icao24, commBidentify.commBMessage.kollsman);
 					saver.newDataEntry(timestamp, icao24, String.format("%.1f", commBidentify.commBMessage.kollsman), "KOLLS4");
