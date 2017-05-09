@@ -102,11 +102,6 @@ public class AirspeedHeadingMsg extends ExtendedSquitter implements Serializable
 	}
 	
 	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public AirspeedHeadingMsg() {}
-
-	/**
 	 * Must be checked before accessing heading!
 	 * 
 	 * @return whether heading info is available

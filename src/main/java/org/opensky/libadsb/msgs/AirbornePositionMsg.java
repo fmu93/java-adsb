@@ -84,11 +84,6 @@ public class AirbornePositionMsg extends ExtendedSquitter implements Serializabl
 	}
 	
 	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public AirbornePositionMsg() {}
-
-	/**
 	 * @return NIC supplement that was set before
 	 */
 	public boolean getNICSupplementA() {

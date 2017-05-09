@@ -198,11 +198,6 @@ public class ModeSReply implements Serializable {
 	public subtype getType() {
 		return type;
 	}
-	
-	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public ModeSReply() {}
 
 	/**
 	 * @param subtype the subtype to set

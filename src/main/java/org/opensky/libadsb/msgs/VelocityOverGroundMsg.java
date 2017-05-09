@@ -103,11 +103,6 @@ public class VelocityOverGroundMsg extends ExtendedSquitter implements Serializa
 		if (geo_minus_baro == -1) geo_minus_baro_available = false;
 		if ((msg[6]&0x80)>0) geo_minus_baro *= -1;
 	}
-	
-	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public VelocityOverGroundMsg() {}
 
 	/**
 	 * Must be checked before accessing velocity!

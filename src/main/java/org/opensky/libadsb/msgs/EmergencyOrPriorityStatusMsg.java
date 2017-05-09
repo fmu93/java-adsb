@@ -67,11 +67,6 @@ public class EmergencyOrPriorityStatusMsg extends ExtendedSquitter implements Se
 	}
 	
 	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public EmergencyOrPriorityStatusMsg() {}
-	
-	/**
 	 * @return the subtype code of the aircraft status report (should always be 1)
 	 */
 	public byte getSubtype() {

@@ -89,11 +89,6 @@ public class OperationalStatusMsg extends ExtendedSquitter implements Serializab
 		nic_trk_hdg = ((msg[6] & 0x8) != 0);
 		hrd = ((msg[6] & 0x4) != 0);
 	}
-	
-	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public OperationalStatusMsg() {}
 
 	/**
 	 * @return the subtype code is 0 for airborne operational status msgs

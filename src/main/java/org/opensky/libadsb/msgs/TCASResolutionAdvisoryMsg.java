@@ -74,11 +74,6 @@ public class TCASResolutionAdvisoryMsg extends ExtendedSquitter implements Seria
 	}
 	
 	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public TCASResolutionAdvisoryMsg() {}
-	
-	/**
 	 * @return the subtype code of the aircraft status report (should always be 2)
 	 */
 	public byte getSubtype() {

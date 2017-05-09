@@ -70,11 +70,6 @@ public class ExtendedSquitter extends ModeSReply implements Serializable {
 		format_type_code = (byte) ((message[0] >>> 3) & 0x1F);
 	}
 	
-	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public ExtendedSquitter() {}
-
 	/*
 	 * Copy constructor for subclasses
 	 * 

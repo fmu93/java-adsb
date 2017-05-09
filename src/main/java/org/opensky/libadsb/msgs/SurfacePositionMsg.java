@@ -81,11 +81,6 @@ public class SurfacePositionMsg extends ExtendedSquitter implements Serializable
 	}
 	
 	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public SurfacePositionMsg() {}
-
-	/**
 	 * @return NIC supplement that was set before
 	 */
 	public boolean getNICSupplementA() {

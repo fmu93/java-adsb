@@ -99,11 +99,6 @@ public class IdentificationMsg extends ExtendedSquitter implements Serializable 
 			}
 		}
 	}
-	
-	/**
-	 * default constructor for Kryo - DO NOT USE
-	 */
-	public IdentificationMsg() {}
 
 	/**
 	 * @return the emitter's category (numerical)
