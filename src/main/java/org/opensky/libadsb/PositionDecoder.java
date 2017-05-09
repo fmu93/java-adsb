@@ -75,7 +75,7 @@ public class PositionDecoder {
 		
 		// may be due to Internet jitter; distance is realistic
 		if (x < 0.7 && d < 2000) return true;
-		else return d/x < (surface?51.44:514.4)*2.5; // 1000 knots for airborne, 100 for surface
+		else return d/x < (surface?51.44:514.4); // 1000 knots for airborne, 100 for surface
 	}
 
 	private static boolean withinThreshold (double timeDifference, double distance) {
