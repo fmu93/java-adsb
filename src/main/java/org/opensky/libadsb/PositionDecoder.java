@@ -39,6 +39,9 @@ public class PositionDecoder {
 	private int num_reasonable; // number of successive reasonable msgs
 	private Logger logger;
 	
+	private double speed;
+	private double last_speed = 0.0;
+
 	// distance to receiver threshold
 	private static final int MAX_DIST_TO_SENDER = 700000; // 700km
 	
@@ -217,6 +220,27 @@ public class PositionDecoder {
 			reasonable = false;
 		}
 		
+
+		// check if it's realistic that the plane accelerated this speed
+		if (last_pos != null && global){ // get speed from global if possible
+			speed = abs(global_pos.distanceTo(last_pos)/time - last_time);
+			if (num_reasonable>2 && global_pos.distanceTo(last_pos) > 300 && abs(time-last_time) < 20){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 5){
+					reasonable = false;
+				}
+			}
+		}
+		else if (last_pos != null && local){
+			speed = abs(local_pos.distanceTo(last_pos)/time - last_time);
+			if (num_reasonable>2 && local_pos.distanceTo(last_pos) > 300 && abs(time-last_time) < 20){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 5){
+					reasonable = false;
+				}
+			}
+		}
+
 		// store latest position message
 		if (msg.isOddFormat() && msg.hasPosition()) {
 			last_odd_airborne = msg;
@@ -236,13 +260,26 @@ public class PositionDecoder {
 			}
 			ret.setReasonable(reasonable);
 		}
-		last_pos = ret;
-		last_time = time;
-		
-		if (!reasonable)
+
+		if (!reasonable){
 			num_reasonable = 0;
-		else if (reasonable && num_reasonable++<2) // at least n good msgs before
-			ret = null;
+		}else{
+			num_reasonable++;
+			last_pos = ret;
+			last_time = time;
+
+			if (num_reasonable == 1)
+				last_speed = 0;
+			else if (num_reasonable == 2)
+				last_speed = speed;
+			else if (2 < num_reasonable && num_reasonable < 6)
+				last_speed = last_speed*(num_reasonable-2)/(num_reasonable-1) + speed/(num_reasonable-1);
+			else
+				last_speed = last_speed*0.8 + speed*0.2; // weighted average of speed
+
+			if (num_reasonable<4)  // at least n good msgs before
+				ret = null;
+		}
 
 		return ret;
 	}
@@ -412,7 +449,27 @@ public class PositionDecoder {
 			});
 			reasonable = false;
 		}
-		
+
+		// check if it's realistic that the plane accelerated this speed
+		if (last_pos != null && global){ // get speed from global if possible
+			speed = abs(global_pos.distanceTo(last_pos)/time - last_time);
+			if (num_reasonable>2 && global_pos.distanceTo(last_pos) > 300 && abs(time-last_time) < 20){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 5){
+					reasonable = false;
+				}
+			}
+		}
+		else if (last_pos != null && local){
+			speed = abs(local_pos.distanceTo(last_pos)/time - last_time);
+			if (num_reasonable>2 && local_pos.distanceTo(last_pos) > 300 && abs(time-last_time) < 20){
+				double acceleration = abs(speed-last_speed/time-last_time);
+				if (acceleration > 5){
+					reasonable = false;
+				}
+			}
+		}
+
 		// store latest position message
 		if (msg.isOddFormat() && msg.hasPosition()) {
 			last_odd_surface = msg;
@@ -434,13 +491,25 @@ public class PositionDecoder {
 			ret.setReasonable(reasonable);
 		}
 
-		last_pos = ret;
-		last_time = time;
-		
-		if (!reasonable)
+		if (!reasonable){
 			num_reasonable = 0;
-		else if (reasonable && num_reasonable++<2) // at least n good msgs before
-			ret = null;
+		}else{
+			num_reasonable++;
+			last_pos = ret;
+			last_time = time;
+
+			if (num_reasonable == 1)
+				last_speed = 0;
+			else if (num_reasonable == 2)
+				last_speed = speed;
+			else if (2 < num_reasonable && num_reasonable < 6)
+				last_speed = last_speed*(num_reasonable-2)/(num_reasonable-1) + speed/(num_reasonable-1);
+			else
+				last_speed = last_speed*0.8 + speed*0.2; // weighted average of speed
+
+			if (num_reasonable<4)  // at least n good msgs before
+				ret = null;
+		}
 
 		return ret;
 	}
