@@ -42,9 +42,6 @@ public class PositionDecoder {
 	// distance to receiver threshold
 	private static final int MAX_DIST_TO_SENDER = 700000; // 700km
 	
-	private double speed;
-	private double last_speed = 0.0;
-	
 	public PositionDecoder() {
 		last_even_airborne = null;
 		last_odd_airborne = null;
@@ -220,21 +217,6 @@ public class PositionDecoder {
 			reasonable = false;
 		}
 		
-		// check if it's realistic that the plane accelerated this speed
-				if (global && last_pos != null && num_reasonable>3 && global_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-					double acceleration = abs(speed-last_speed)/abs(time-last_time);
-					if (acceleration > 20){
-						reasonable = false;
-					}
-				}
-
-				if (local && last_pos != null && num_reasonable>3 && local_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-					double acceleration = abs(speed-last_speed)/abs(time-last_time);
-					if (acceleration > 20){
-						reasonable = false;
-					}
-				}
-		
 		// store latest position message
 		if (msg.isOddFormat() && msg.hasPosition()) {
 			last_odd_airborne = msg;
@@ -254,19 +236,14 @@ public class PositionDecoder {
 			}
 			ret.setReasonable(reasonable);
 		}
-		if (!reasonable){
+		last_pos = ret;
+		last_time = time;
+		
+		if (!reasonable)
 			num_reasonable = 0;
-		}else{ // at least n good msgs before
-			last_pos = ret;
-			last_time = time;
-			if (last_speed == 0.0)
-				last_speed = speed;
-			else
-				last_speed = (last_speed*0.8 + speed*0.2); // weighted average of speed
-			if (num_reasonable<3)
-				ret = null;
-			num_reasonable++;
-		}
+		else if (reasonable && num_reasonable++<2) // at least n good msgs before
+			ret = null;
+
 		return ret;
 	}
 	
@@ -436,21 +413,6 @@ public class PositionDecoder {
 			reasonable = false;
 		}
 		
-		// check if it's realistic that the plane accelerated this speed
-				if (global && last_pos != null && num_reasonable>3 && global_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-					double acceleration = abs(speed-last_speed)/abs(time-last_time);
-					if (acceleration > 10){
-						reasonable = false;
-					}
-				}
-
-				if (local && last_pos != null && num_reasonable>3 && local_pos.distanceTo(last_pos) > 200 && abs(time-last_time) < 30){
-					double acceleration = abs(speed-last_speed)/abs(time-last_time);
-					if (acceleration > 10){
-						reasonable = false;
-					}
-				}
-		
 		// store latest position message
 		if (msg.isOddFormat() && msg.hasPosition()) {
 			last_odd_surface = msg;
@@ -472,19 +434,14 @@ public class PositionDecoder {
 			ret.setReasonable(reasonable);
 		}
 
-		if (!reasonable){
+		last_pos = ret;
+		last_time = time;
+		
+		if (!reasonable)
 			num_reasonable = 0;
-		}else{ // at least n good msgs before
-			last_pos = ret;
-			last_time = time;
-			if (last_speed == 0.0)
-				last_speed = speed;
-			else
-				last_speed = (last_speed*0.8 + speed*0.2); // weighted average of speed
-			if (num_reasonable<2)
-				ret = null;
-			num_reasonable++;
-		}
+		else if (reasonable && num_reasonable++<2) // at least n good msgs before
+			ret = null;
+
 		return ret;
 	}
 	
