@@ -65,7 +65,7 @@ public class ShortACAS extends ModeSReply implements Serializable {
 		cross_link_capability = (getFirstField()&0x2)!=0;
 		sensitivity_level = (byte) ((payload[0]>>>5)&0x7);
 		reply_information = (byte) ((payload[0]&0x7)<<1 | (payload[1]>>>7)&0x1);
-		altitude_code = (short) ((payload[1]<<8 | payload[2]&0xFF)&0x1FFF);
+		altitude_code = (short) ((payload[1]<<8&0xFF00 | payload[2]&0xFF)&0x1FFF);
 	}
 	
 
