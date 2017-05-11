@@ -63,32 +63,32 @@ class LastData{
 	public void newEntry(double epochTime, String data, int dataTypeIndex){
 		if (dataTypeIndex == 0)
 			call = data;
-		else if (dataTypeIndex == 3 && data != "gr"){
+		else if (dataTypeIndex == 3){
 			fl = Double.parseDouble(data);
 			alt = Double.parseDouble(data)*30.48;
 			timeAlt = epochTime;
 			hasAlt = true;
-		}else if (dataTypeIndex == 4){
+		}else if (dataTypeIndex == 5){
 			vrate = Double.parseDouble(data);
 			timeVrate = epochTime;
 			hasVrate = true;
-		}else if (dataTypeIndex == 6){
+		}else if (dataTypeIndex == 7){
 			ttrack = Double.parseDouble(data);
 			timeTtrack = epochTime;
 			hasTtrack = true;
-		}else if (dataTypeIndex == 10){
+		}else if (dataTypeIndex == 11){
 			noADSBAlt = Double.parseDouble(data)*30.48;
 			timenoADSBAlt = epochTime;
 			hasnoADSBAlt = true;
-		}else if (dataTypeIndex == 17){
+		}else if (dataTypeIndex == 18){
 			tas = Double.parseDouble(data);
 			timeTas = epochTime;
 			hasTas = true;
-		}else if (dataTypeIndex == 15){
+		}else if (dataTypeIndex == 16){
 			gs = Double.parseDouble(data);
 			timeGs = epochTime;
 			hasGs = true;
-		}else if (dataTypeIndex == 19){
+		}else if (dataTypeIndex == 20){
 			ias = Double.parseDouble(data);
 			timeIas = epochTime;
 			hasIas = true;
