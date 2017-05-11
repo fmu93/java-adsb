@@ -166,7 +166,7 @@ public class ExampleDecoder{
 						System.out.println("Now at position ("+current.getLatitude()+","+current.getLongitude()+")");
 						saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLatitude()), "LAT");
 						saver.newDataEntry(timestamp, icao24, String.format("%.6f", current.getLongitude()), "LON");
-						saver.newDataEntry(timestamp, icao24, "gr", "FL");
+						saver.newDataEntry(timestamp, icao24, "1", "GR");
 
 						analytics.newSurf(icao24);
 						analytics.newAlt(icao24, 600.0);

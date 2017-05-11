@@ -26,6 +26,7 @@ public class SaveToDatabase {
 		"LAT",
 		"LON",
 		"FL",
+		"GR",
 		"VRATE",
 		"GS",
 		"TTRACK",
